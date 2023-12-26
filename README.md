@@ -2,6 +2,7 @@
 
 # logly.rs
 
+[![Rust](https://github.com/muhammad-fiaz/logly-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/muhammad-fiaz/logly-rs/actions/workflows/rust.yml)
 [![Crates.io Version](https://img.shields.io/crates/v/logly)](https://crates.io/crates/logly)
 [![Crates.io Downloads](https://img.shields.io/crates/d/logly)](https://crates.io/crates/logly)
 [![Crates.io License](https://img.shields.io/crates/l/logly)](https://opensource.org/licenses/MIT)
