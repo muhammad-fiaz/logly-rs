@@ -1,17 +1,25 @@
+// lib.rs
+
+// Import the logly module
 mod logly;
 
-// SAMPLE TEST CASES here
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+use log::{Level};
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+// Use the Rustly logger from the logly module
+use logly::Rustly;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+fn main() {
+    // Create an instance of Rustly with desired configurations
+    let mut rustly = Rustly::new(true, true);
+
+    // Start logging
+    rustly.start_logging();
+
+    // Log messages with different levels
+    rustly.log(Level::Info, "This is an information message.");
+    rustly.log(Level::Error, "This is an error message.");
+    rustly.log(Level::Trace, "This is a trace message.");
+
+    // Stop logging (optional)
+    rustly.stop_logging();
 }
