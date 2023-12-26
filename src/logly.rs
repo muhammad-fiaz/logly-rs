@@ -152,23 +152,3 @@ impl Logger {
         self.color_enabled = color_enabled;
     }
 }
-
-// Example usage
-fn main() {
-    let logger = Logger::new();
-
-    if let Err(err) = logger.start_logging("log.txt") {
-        eprintln!("Error starting logging: {}", err);
-        return;
-    }
-
-    logger.info("Key1", "Value1", LogColor::Cyan);
-    logger.warn("Key2", "Value2", LogColor::Yellow);
-    logger.error("Key3", "Value3", LogColor::Red);
-
-    logger.stop_logging();
-
-    logger.info("AnotherKey1", "AnotherValue1", LogColor::Cyan);
-    logger.warn("AnotherKey2", "AnotherValue2", LogColor::Yellow);
-    logger.error("AnotherKey3", "AnotherValue3", LogColor::Red);
-}
