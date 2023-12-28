@@ -24,6 +24,11 @@ Logly is a simple logging utility for rust that provides an easy way to log mess
 
 if you like this project make sure to star 🌟 it in the [repository](https://github.com/muhammad-fiaz/logly-rs/) and if you want to contribute make sure to fork this repository❤✨.
 
+## Installation
+```shell
+cargo add logly
+
+```
 
 ## Contributing
 Contributions are welcome! Before contributing, please read our [Contributing Guidelines](CONTRIBUTING.md) to ensure a smooth and collaborative development process.
