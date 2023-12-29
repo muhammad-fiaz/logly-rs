@@ -29,7 +29,22 @@ if you like this project make sure to star 🌟 it in the [repository](https://g
 cargo add logly
 
 ```
+### Usage
 
+```rust
+use logly::logly::*;
+let logly = logly::new();
+
+logly.start_logging("test_log.txt");
+
+logly.info("Key1", "Value1", LogColor::Cyan);
+logly.warn("Key2", "Value2", LogColor::Yellow);
+
+logly.stop_logging();
+logly.warn("Key3", "Value3", LogColor::Yellow);
+
+
+```
 ## Contributing
 Contributions are welcome! Before contributing, please read our [Contributing Guidelines](CONTRIBUTING.md) to ensure a smooth and collaborative development process.
 
