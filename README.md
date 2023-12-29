@@ -33,18 +33,48 @@ cargo add logly
 
 ```rust
 use logly::logly::*;
-let logly = logly::new();
 
-logly.start_logging("test_log.txt");
+let logly = logly::new(); //intialize the logly
 
-logly.info("Key1", "Value1", LogColor::Cyan);
+logly.start_logging("test_log.txt"); //start storing the log messages in txt, make sure to pass to create the file
+
+logly.info("Key1", "Value1", LogColor::Cyan); // message with custom color if you don't want just set it None
 logly.warn("Key2", "Value2", LogColor::Yellow);
 
-logly.stop_logging();
+logly.stop_logging(); //this will stop storing the message from here but it will display
 logly.warn("Key3", "Value3", LogColor::Yellow);
 
 
 ```
+## Color Options:
+
+### Default Color Options:
+
+| Level    | Color Code      |
+| -------- | --------------- |
+| INFO     | CYAN            |
+| WARNING  | YELLOW          |
+| ERROR    | RED             |
+| DEBUG    | BLUE            |
+| CRITICAL | BRIGHT RED      |
+| TRACE    | BLUE            |
+| DEFAULT  | WHITE           |
+
+### Custom Color Options:
+
+You can use any of the following color codes for custom coloring:
+
+| NAME     | Color Code      |
+|----------| --------------- |
+| CYAN      | CYAN            |
+| YELLOW   | YELLOW          |
+|  RED       | RED             |
+|  BLUE      | BLUE            |
+| BRIGHT RED | CRITICAL     |
+|WHITE   | WHITE           |
+
+
+
 ## Contributing
 Contributions are welcome! Before contributing, please read our [Contributing Guidelines](CONTRIBUTING.md) to ensure a smooth and collaborative development process.
 
