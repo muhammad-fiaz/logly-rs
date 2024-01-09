@@ -1,29 +1,22 @@
-name: Rust publish to crates.io
+name: Crates.io
 
 on:
   push:
-    # Pattern matched against refs/tags
-    tags:        
-      - '*'        
-  workflow_dispatch:
-
-name: Publish
+    tags:
+      - '**'
 
 jobs:
   publish:
     name: Publish
+    if: github.repository == 'VHDL-LS/rust_hdl'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
-
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
           override: true
-
-      - run: cargo publish --token ${CRATES_PUBLISH_TOKEN}
-        env:
-          CRATES_TOKEN: ${{ secrets.CRATES_PUBLISH_TOKEN }}
+      - uses: katyo/publish-crates@v1
+        with:
+          registry-token: ${{ secrets.CRATES_PUBLISH_TOKEN }}
+          ignore-unpublished-changes: true
