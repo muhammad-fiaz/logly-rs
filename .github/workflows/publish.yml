@@ -12,7 +12,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
-        ref: main  # Specify the branch name
+        ref: main  # Specify the branch name as 'main'
 
     - name: Set up Rust
       uses: actions/setup-rust@v1
@@ -22,4 +22,4 @@ jobs:
     - name: Publish to Crates.io
       uses: softprops/action-cargo-publish@v1
       with:
-        token: ${{ secrets.CRATES_PUBLISH_TOKEN }}
+        token: ${{ secrets.CARGO_TOKEN }}
