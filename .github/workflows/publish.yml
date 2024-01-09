@@ -1,9 +1,10 @@
 on:
   push:
-  
-    tags:        
-      - '*'          
+    branches:
+      - main
+
   workflow_dispatch:
+    # This allows you to manually trigger the workflow from the Actions tab in your repository
 
 name: Publish
 
@@ -22,6 +23,6 @@ jobs:
           toolchain: stable
           override: true
 
-      - run: cargo publish "--allow-dirty" --token 
+      - run: cargo publish --token ${{ secrets.CRATES_PUBLISH_TOKEN }}
         env:
           CRATES_TOKEN: ${{ secrets.CRATES_PUBLISH_TOKEN }}
