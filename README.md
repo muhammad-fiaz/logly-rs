@@ -1,5 +1,7 @@
 <div align="center">
   
+![logo banner](https://github.com/muhammad-fiaz/logly-rs/assets/75434191/500975cc-b5f4-46df-abe8-2d03c687a1c1)
+
 # logly.rs
 
 [![Rust](https://github.com/muhammad-fiaz/logly-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/muhammad-fiaz/logly-rs/actions/workflows/rust.yml)
