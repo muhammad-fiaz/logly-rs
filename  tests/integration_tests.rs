@@ -3,7 +3,7 @@
 use logly::logly::*;
 
 #[test]
-fn test_start_and_stop_logging() {
+pub fn test_start_and_stop_logging() {
     let logly = logly::new();
 
     assert!(logly.start_logging("test_log.txt").is_ok());

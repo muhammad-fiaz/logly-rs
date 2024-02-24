@@ -1,4 +1,7 @@
 <div align="center">
+  
+![logo banner](https://github.com/muhammad-fiaz/logly-rs/assets/75434191/500975cc-b5f4-46df-abe8-2d03c687a1c1)
+
 # logly.rs
 
 [![Rust](https://github.com/muhammad-fiaz/logly-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/muhammad-fiaz/logly-rs/actions/workflows/rust.yml)
@@ -35,7 +38,7 @@ use logly::logly::*;
 
 let logly = logly::new(); //intialize the logly
 
-logly.start_logging("test_log.txt"); //start storing the log messages in txt, make sure to pass to create the file
+logly.start_logging("test_log.txt"); //start storing the log messages in txt, make sure to pass to create the log file
 
 logly.info("Key1", "Value1", LogColor::Cyan); // message with custom color if you don't want just set it None
 logly.warn("Key2", "Value2", LogColor::Yellow);
@@ -76,6 +79,10 @@ You can use any of the following color codes for custom coloring:
 ## Contributing
 Contributions are welcome! Before contributing, please read our [Contributing Guidelines](CONTRIBUTING.md) to ensure a smooth and collaborative development process.
 
+## Issues
+
+If you encounter any issues or have suggestions, feel free to [open an issue](https://github.com/muhammad-fiaz/logly-rs/issues) on GitHub!
+
 ## Code of Conduct
 
 Please review our [Code of Conduct](CODE_OF_CONDUCT.md) to understand the standards of behavior we expect from contributors and users of this project.
@@ -87,13 +94,11 @@ This project is licensed under the [MIT License](). See [LICENSE](LICENSE) for m
 <br>
 <div align="center">
 
-<h5> <strong> 💰 You can help me improve more by offering a little support on any platform❤️</strong></h5>
+<h5> <strong> 💰 You can help this improve more by offering a little support! ❤️</strong></h5>
 
-[![BuyMeACoffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/muhammadfiaz) [![Patreon](https://img.shields.io/badge/Patreon-F96854?style=for-the-badge&logo=patreon&logoColor=white)](https://patreon.com/muhammadfiaz) [![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/muhammadfiaz)
 [![Sponsor muhammad-fiaz](https://img.shields.io/badge/Sponsor-%231EAEDB.svg?&style=for-the-badge&logo=GitHub-Sponsors&logoColor=white)](https://github.com/sponsors/muhammad-fiaz)
-[![Open Collective Backer](https://img.shields.io/badge/Open%20Collective-Backer-%238CC84B?style=for-the-badge&logo=open-collective&logoColor=white)](https://opencollective.com/muhammadfiaz)
-</div>
 
+</div>
 
 
 ## Happy Coding ❤️
