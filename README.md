@@ -1,4 +1,5 @@
 <div align="center">
+  
 # logly.rs
 
 [![Rust](https://github.com/muhammad-fiaz/logly-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/muhammad-fiaz/logly-rs/actions/workflows/rust.yml)
