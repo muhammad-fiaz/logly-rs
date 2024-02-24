@@ -1,9 +1,12 @@
 [package]
 name = "logly"
-version = "0.0.2"
+version = "0.0.3"
 edition = "2021"
 description = "A Rust logging package designed to simplify and enhance your logging experience."
 license = "MIT"
+authors = ["muhammad-fiaz"]
+repository = "https://github.com/muhammad-fiaz/logly-rs.git"
+keywords = ["logging", "log", "logly", "logly-rs","rust"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
