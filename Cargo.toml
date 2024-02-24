@@ -17,6 +17,7 @@ termcolor = "1.1"
 ansi_term = "0.12.1"
 regex = "1.10.2"
 
+# to use cargo run uncomment the following lines
 #[[bin]]
 #name = "logly"
 #path = "src/lib.rs"
