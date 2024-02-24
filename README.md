@@ -79,6 +79,10 @@ You can use any of the following color codes for custom coloring:
 ## Contributing
 Contributions are welcome! Before contributing, please read our [Contributing Guidelines](CONTRIBUTING.md) to ensure a smooth and collaborative development process.
 
+## Issues
+
+If you encounter any issues or have suggestions, feel free to [open an issue](https://github.com/muhammad-fiaz/logly-rs/issues) on GitHub!
+
 ## Code of Conduct
 
 Please review our [Code of Conduct](CODE_OF_CONDUCT.md) to understand the standards of behavior we expect from contributors and users of this project.
@@ -95,7 +99,6 @@ This project is licensed under the [MIT License](). See [LICENSE](LICENSE) for m
 [![Sponsor muhammad-fiaz](https://img.shields.io/badge/Sponsor-%231EAEDB.svg?&style=for-the-badge&logo=GitHub-Sponsors&logoColor=white)](https://github.com/sponsors/muhammad-fiaz)
 
 </div>
-
 
 
 ## Happy Coding ❤️
