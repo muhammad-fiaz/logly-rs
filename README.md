@@ -1,5 +1,4 @@
 <div align="center">
-
 # logly.rs
 
 [![Rust](https://github.com/muhammad-fiaz/logly-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/muhammad-fiaz/logly-rs/actions/workflows/rust.yml)
@@ -72,7 +71,6 @@ You can use any of the following color codes for custom coloring:
 |  BLUE      | BLUE            |
 | BRIGHT RED | CRITICAL     |
 |WHITE   | WHITE           |
-
 
 
 ## Contributing
