@@ -152,3 +152,4 @@ impl Logger {
         self.color_enabled = color_enabled;
     }
 }
+
