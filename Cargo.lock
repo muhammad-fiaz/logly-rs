@@ -126,9 +126,9 @@ dependencies = [
 
 [[package]]
 name = "colorama"
-version = "0.1.0"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2140224647bbc753e98f6eb36c8780a2f7cf474ae542302df44b2786908b62de"
+checksum = "d165615226b6fc0f056b4cba43b3cda82125d54cd8c6fa80228b5406b140536c"
 
 [[package]]
 name = "colorchoice"
