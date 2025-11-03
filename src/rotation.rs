@@ -40,7 +40,7 @@ pub enum RotationPolicy {
 }
 
 /// Manages log file rotation and retention.
-/// 
+///
 /// Tracks file size and time, rotates files when thresholds are reached,
 /// and applies retention policies to clean up old files.
 pub struct RotationManager {
@@ -58,9 +58,9 @@ pub struct RotationManager {
 
 impl RotationManager {
     /// Creates a new rotation manager.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `base_path` - Path to the log file
     /// * `policy` - Rotation policy (size, time, or both)
     /// * `retention` - Maximum number of rotated files to keep (None = unlimited)
@@ -75,36 +75,33 @@ impl RotationManager {
     }
 
     /// Checks if the log file should be rotated.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `additional_size` - Size of data about to be written
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// `true` if rotation is needed, `false` otherwise
     pub fn should_rotate(&mut self, additional_size: u64) -> bool {
         match &self.policy {
-            RotationPolicy::Size(max_size) => {
-                self.current_size + additional_size >= *max_size
-            }
-            RotationPolicy::Time(interval) => {
-                self.should_rotate_by_time(interval)
-            }
+            RotationPolicy::Size(max_size) => self.current_size + additional_size >= *max_size,
+            RotationPolicy::Time(interval) => self.should_rotate_by_time(interval),
             RotationPolicy::Both(max_size, interval) => {
-                (self.current_size + additional_size >= *max_size) || self.should_rotate_by_time(interval)
+                (self.current_size + additional_size >= *max_size)
+                    || self.should_rotate_by_time(interval)
             }
         }
     }
 
     /// Checks if rotation is needed based on time interval.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `interval` - Time interval string ("hourly", "daily", "weekly", "monthly", "yearly")
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// `true` if the interval has elapsed since last rotation
     fn should_rotate_by_time(&self, interval: &str) -> bool {
         let now = Utc::now();
@@ -121,23 +118,29 @@ impl RotationManager {
     }
 
     /// Rotates the log file by renaming it with a timestamp.
-    /// 
+    ///
     /// Creates a new file with the original name and applies retention policy.
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// Path to the rotated file, or an error if rotation fails
     pub fn rotate(&mut self) -> Result<PathBuf> {
         let timestamp = Utc::now().format("%Y%m%d_%H%M%S");
-        let extension = self.base_path.extension()
+        let extension = self
+            .base_path
+            .extension()
             .and_then(|e| e.to_str())
             .unwrap_or("log");
-        
-        let stem = self.base_path.file_stem()
+
+        let stem = self
+            .base_path
+            .file_stem()
             .and_then(|s| s.to_str())
             .ok_or_else(|| LoglyError::InvalidConfig("Invalid file path".to_string()))?;
 
-        let parent = self.base_path.parent()
+        let parent = self
+            .base_path
+            .parent()
             .ok_or_else(|| LoglyError::InvalidConfig("Invalid file path".to_string()))?;
 
         let rotated_path = parent.join(format!("{}_{}.{}", stem, timestamp, extension));
@@ -157,14 +160,20 @@ impl RotationManager {
     }
 
     /// Applies retention policy by deleting old rotated files.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `dir` - Directory containing log files
     /// * `stem` - Base filename without extension
     /// * `extension` - File extension
     /// * `max_files` - Maximum number of files to keep
-    fn apply_retention(&self, dir: &Path, stem: &str, extension: &str, max_files: usize) -> Result<()> {
+    fn apply_retention(
+        &self,
+        dir: &Path,
+        stem: &str,
+        extension: &str,
+        max_files: usize,
+    ) -> Result<()> {
         let mut log_files: Vec<_> = fs::read_dir(dir)?
             .filter_map(|entry| entry.ok())
             .filter(|entry| {
@@ -177,7 +186,8 @@ impl RotationManager {
             .collect();
 
         log_files.sort_by_key(|entry| {
-            entry.metadata()
+            entry
+                .metadata()
                 .and_then(|m| m.modified())
                 .unwrap_or(std::time::SystemTime::UNIX_EPOCH)
         });
@@ -192,9 +202,9 @@ impl RotationManager {
     }
 
     /// Updates the current file size by adding the specified bytes.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `size` - Number of bytes to add to current size
     pub fn update_size(&mut self, size: u64) {
         self.current_size += size;

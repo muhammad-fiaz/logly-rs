@@ -8,7 +8,7 @@ use std::fmt;
 use std::str::FromStr;
 
 /// Standard log levels with numeric priorities.
-/// 
+///
 /// Levels are ordered by severity, with lower numbers being less severe.
 /// Each level has a unique priority value used for filtering and comparison.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -63,14 +63,14 @@ impl Level {
 
     pub fn default_color(&self) -> &'static str {
         match self {
-            Level::Trace => "36",      // Cyan
-            Level::Debug => "34",      // Blue
-            Level::Info => "37",       // White
-            Level::Success => "32",    // Green
-            Level::Warning => "33",    // Yellow
-            Level::Error => "31",      // Red
-            Level::Fail => "35",       // Magenta
-            Level::Critical => "91",   // Bright Red
+            Level::Trace => "36",    // Cyan
+            Level::Debug => "34",    // Blue
+            Level::Info => "37",     // White
+            Level::Success => "32",  // Green
+            Level::Warning => "33",  // Yellow
+            Level::Error => "31",    // Red
+            Level::Fail => "35",     // Magenta
+            Level::Critical => "91", // Bright Red
         }
     }
 
@@ -127,7 +127,7 @@ impl FromStr for Level {
 }
 
 /// Custom log level with user-defined priority and color.
-/// 
+///
 /// Allows users to define their own log levels beyond the standard 8 levels.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct CustomLevel {
@@ -141,6 +141,10 @@ pub struct CustomLevel {
 
 impl CustomLevel {
     pub fn new(name: String, priority: u8, color: String) -> Self {
-        Self { name, priority, color }
+        Self {
+            name,
+            priority,
+            color,
+        }
     }
 }

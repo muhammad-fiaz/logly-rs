@@ -33,9 +33,9 @@ impl Logger {
     pub fn new() -> Self {
         let config_loader = ConfigFileLoader::new();
         let file_config = config_loader.load().ok().flatten();
-        
+
         let initial_config = file_config.unwrap_or_default();
-        
+
         let logger = Self {
             config: Arc::new(RwLock::new(initial_config.clone())),
             sinks: Arc::new(RwLock::new(HashMap::new())),
@@ -58,12 +58,12 @@ impl Logger {
 
         logger
     }
-    
+
     pub fn with_config_file(path: std::path::PathBuf) -> Result<Self> {
         let mut config_loader = ConfigFileLoader::new();
         config_loader.set_custom_path(path);
         let file_config = config_loader.load()?.unwrap_or_default();
-        
+
         let logger = Self {
             config: Arc::new(RwLock::new(file_config.clone())),
             sinks: Arc::new(RwLock::new(HashMap::new())),
@@ -85,7 +85,7 @@ impl Logger {
 
         Ok(logger)
     }
-    
+
     pub fn disable_config_file_scan(&self) {
         self.config_file_loader.write().disable_scan();
     }
@@ -101,9 +101,12 @@ impl Logger {
         if gpu_buffer_size == 0 {
             eprintln!("[LOGLY WARNING] GPU buffer size is 0, using default 1MB");
         }
-        
+
         if config.custom_levels.len() > 100 {
-            eprintln!("[LOGLY WARNING] Too many custom levels ({}), may impact performance", config.custom_levels.len());
+            eprintln!(
+                "[LOGLY WARNING] Too many custom levels ({}), may impact performance",
+                config.custom_levels.len()
+            );
         }
 
         *self.config.write() = config;
@@ -144,7 +147,7 @@ impl Logger {
         let config = SinkConfig::default();
         self.add_sink(config)?;
         *self.auto_sink_initialized.write() = true;
-        
+
         if self.config.read().debug_mode {
             eprintln!("[LOGLY DEBUG] Auto-sink initialized");
         }
@@ -154,7 +157,10 @@ impl Logger {
     pub fn add_sink(&self, mut config: SinkConfig) -> Result<usize> {
         let sink_count = self.sinks.read().len();
         if sink_count >= 50 {
-            eprintln!("[LOGLY WARNING] High number of sinks ({}), may impact performance", sink_count);
+            eprintln!(
+                "[LOGLY WARNING] High number of sinks ({}), may impact performance",
+                sink_count
+            );
         }
 
         let mut next_id = self.next_sink_id.write();
@@ -175,11 +181,11 @@ impl Logger {
                 return Err(e);
             }
         };
-        
+
         // Apply custom level colors from logger config
         let level_colors = self.config.read().level_colors.clone();
         sink.set_level_colors(level_colors);
-        
+
         self.sinks.write().insert(id, Arc::new(sink));
 
         if self.config.read().debug_mode {
@@ -306,7 +312,7 @@ impl Logger {
         if let Some(custom_level) = config.get_custom_level(level_name) {
             let priority = custom_level.priority;
             drop(config);
-            
+
             // Use closest standard level based on priority
             let level = Level::from_priority(priority).unwrap_or(Level::Info);
             self.log(level, message)
@@ -318,9 +324,10 @@ impl Logger {
     fn handle_exception(&self, error: &str) {
         let backtrace = backtrace::Backtrace::new();
         let backtrace_str = format!("{:?}", backtrace);
-        
-        self.callbacks.execute_exception_callbacks(error, &backtrace_str);
-        
+
+        self.callbacks
+            .execute_exception_callbacks(error, &backtrace_str);
+
         if self.config.read().debug_mode {
             eprintln!("[LOGLY EXCEPTION] {}\n{}", error, backtrace_str);
         }
@@ -418,7 +425,10 @@ impl Logger {
     // Custom level management
     pub fn add_custom_level(&self, name: String, priority: u8, color: String) -> Result<()> {
         if priority < 5 || priority > 50 {
-            eprintln!("[LOGLY WARNING] Custom level priority {} is outside standard range (5-50)", priority);
+            eprintln!(
+                "[LOGLY WARNING] Custom level priority {} is outside standard range (5-50)",
+                priority
+            );
         }
         self.config.write().add_custom_level(name, priority, color)
     }

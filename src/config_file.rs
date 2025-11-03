@@ -139,9 +139,8 @@ impl ConfigFileLoader {
             }
         }
 
-        let content = fs::read_to_string(&config_path).map_err(|e| {
-            LoglyError::InvalidConfig(format!("Failed to read config file: {}", e))
-        })?;
+        let content = fs::read_to_string(&config_path)
+            .map_err(|e| LoglyError::InvalidConfig(format!("Failed to read config file: {}", e)))?;
 
         let config_file: ConfigFile = toml::from_str(&content).map_err(|e| {
             LoglyError::InvalidConfig(format!("Failed to parse config file: {}", e))

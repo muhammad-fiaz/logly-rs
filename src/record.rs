@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// A single log record containing all information about a log entry.
-/// 
+///
 /// Records are created by the logger and passed through filters, formatters,
 /// and callbacks before being written to sinks.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -34,14 +34,14 @@ pub struct LogRecord {
 
 impl LogRecord {
     /// Creates a new log record with the specified level and message.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `level` - Log level
     /// * `message` - Log message text
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// A new LogRecord with current timestamp and empty location/fields
     pub fn new(level: Level, message: String) -> Self {
         Self {
@@ -57,14 +57,14 @@ impl LogRecord {
     }
 
     /// Adds a custom field to the log record.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `key` - Field name
     /// * `value` - Field value (any JSON-serializable value)
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// Self for method chaining
     pub fn with_field(mut self, key: String, value: serde_json::Value) -> Self {
         self.fields.insert(key, value);
@@ -72,16 +72,16 @@ impl LogRecord {
     }
 
     /// Sets location information for the log record.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `module` - Module name
     /// * `function` - Function name
     /// * `filename` - Source file name
     /// * `lineno` - Line number
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// Self for method chaining
     pub fn with_location(
         mut self,

@@ -62,7 +62,7 @@ fn test_file_logging() {
     logger.add_sink(config).unwrap();
 
     logger.info("File test message".to_string()).unwrap();
-    
+
     std::thread::sleep(std::time::Duration::from_millis(100));
 
     assert!(log_path.exists());
@@ -71,15 +71,15 @@ fn test_file_logging() {
 #[test]
 fn test_sink_management() {
     let logger = Logger::new();
-    
+
     let id1 = logger.add_sink(SinkConfig::default()).unwrap();
     let _id2 = logger.add_sink(SinkConfig::default()).unwrap();
-    
+
     assert_eq!(logger.get_sink_count(), 2);
-    
+
     assert!(logger.remove_sink(id1));
     assert_eq!(logger.get_sink_count(), 1);
-    
+
     let removed = logger.remove_all_sinks();
     assert_eq!(removed, 1);
     assert_eq!(logger.get_sink_count(), 0);
@@ -114,7 +114,7 @@ fn test_context_binding() {
 #[test]
 fn test_custom_levels() {
     let logger = Logger::new();
-    
+
     let result = logger.add_custom_level("NOTICE".to_string(), 35, "95".to_string());
     assert!(result.is_ok());
 
@@ -155,16 +155,16 @@ fn test_version_info() {
 fn test_debug_mode() {
     let logger = Logger::new();
     logger.enable_debug();
-    
+
     assert!(logger.info("Debug mode test".to_string()).is_ok());
-    
+
     logger.disable_debug();
 }
 
 #[test]
 fn test_level_from_string() {
     use std::str::FromStr;
-    
+
     assert_eq!(Level::from_str("TRACE").unwrap(), Level::Trace);
     assert_eq!(Level::from_str("debug").unwrap(), Level::Debug);
     assert_eq!(Level::from_str("INFO").unwrap(), Level::Info);
@@ -173,7 +173,7 @@ fn test_level_from_string() {
     assert_eq!(Level::from_str("error").unwrap(), Level::Error);
     assert_eq!(Level::from_str("FAIL").unwrap(), Level::Fail);
     assert_eq!(Level::from_str("critical").unwrap(), Level::Critical);
-    
+
     assert!(Level::from_str("INVALID").is_err());
 }
 
@@ -191,7 +191,9 @@ fn test_concurrent_logging() {
         let logger_clone = Arc::clone(&logger);
         let handle = thread::spawn(move || {
             for j in 0..100 {
-                logger_clone.info(format!("Thread {} - Message {}", i, j)).unwrap();
+                logger_clone
+                    .info(format!("Thread {} - Message {}", i, j))
+                    .unwrap();
             }
         });
         handles.push(handle);

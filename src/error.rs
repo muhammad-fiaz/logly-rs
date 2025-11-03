@@ -10,7 +10,7 @@ use thiserror::Error;
 pub type Result<T> = std::result::Result<T, LoglyError>;
 
 /// Main error type for the logging library.
-/// 
+///
 /// Covers all possible error conditions including I/O errors, configuration errors,
 /// GPU errors, and runtime errors.
 #[derive(Error, Debug)]

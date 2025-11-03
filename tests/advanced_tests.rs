@@ -36,9 +36,11 @@ fn test_file_rotation_size() {
     logger.add_sink(config).unwrap();
 
     for i in 0..100 {
-        logger.info(format!("Size rotation test message {}", i)).unwrap();
+        logger
+            .info(format!("Size rotation test message {}", i))
+            .unwrap();
     }
-    
+
     std::thread::sleep(std::time::Duration::from_millis(200));
 }
 
@@ -91,16 +93,20 @@ fn test_multiple_sinks() {
     let log_path2 = temp_dir.path().join("sink2.log");
 
     let logger = Logger::new();
-    
-    logger.add_sink(SinkConfig {
-        path: Some(log_path1.clone()),
-        ..Default::default()
-    }).unwrap();
-    
-    logger.add_sink(SinkConfig {
-        path: Some(log_path2.clone()),
-        ..Default::default()
-    }).unwrap();
+
+    logger
+        .add_sink(SinkConfig {
+            path: Some(log_path1.clone()),
+            ..Default::default()
+        })
+        .unwrap();
+
+    logger
+        .add_sink(SinkConfig {
+            path: Some(log_path2.clone()),
+            ..Default::default()
+        })
+        .unwrap();
 
     logger.info("Multiple sinks test".to_string()).unwrap();
     std::thread::sleep(std::time::Duration::from_millis(100));
@@ -168,15 +174,25 @@ fn test_exception_callback() {
 #[test]
 fn test_custom_level_priority() {
     let logger = Logger::new();
-    
-    logger.add_custom_level("NOTICE".to_string(), 35, "96".to_string()).unwrap();
-    logger.add_custom_level("ALERT".to_string(), 42, "91".to_string()).unwrap();
-    
+
+    logger
+        .add_custom_level("NOTICE".to_string(), 35, "96".to_string())
+        .unwrap();
+    logger
+        .add_custom_level("ALERT".to_string(), 42, "91".to_string())
+        .unwrap();
+
     logger.add_sink(SinkConfig::default()).unwrap();
-    
-    assert!(logger.log_custom("NOTICE", "Notice message".to_string()).is_ok());
-    assert!(logger.log_custom("ALERT", "Alert message".to_string()).is_ok());
-    assert!(logger.log_custom("INVALID", "Invalid message".to_string()).is_err());
+
+    assert!(logger
+        .log_custom("NOTICE", "Notice message".to_string())
+        .is_ok());
+    assert!(logger
+        .log_custom("ALERT", "Alert message".to_string())
+        .is_ok());
+    assert!(logger
+        .log_custom("INVALID", "Invalid message".to_string())
+        .is_err());
 }
 
 #[test]
@@ -188,7 +204,7 @@ fn test_global_console_display() {
     logger.configure(config);
 
     logger.add_sink(SinkConfig::default()).unwrap();
-    
+
     // Should not output anywhere
     assert!(logger.info("Silent mode test".to_string()).is_ok());
 }
@@ -204,10 +220,12 @@ fn test_global_file_storage() {
     config.global_console_display = true; // Keep console enabled
     logger.configure(config);
 
-    logger.add_sink(SinkConfig {
-        path: Some(log_path.clone()),
-        ..Default::default()
-    }).unwrap();
+    logger
+        .add_sink(SinkConfig {
+            path: Some(log_path.clone()),
+            ..Default::default()
+        })
+        .unwrap();
 
     logger.info("File storage disabled".to_string()).unwrap();
     std::thread::sleep(std::time::Duration::from_millis(200));
@@ -294,14 +312,18 @@ fn test_bound_fields_persistence() {
 #[test]
 fn test_high_throughput() {
     let logger = Logger::new();
-    logger.add_sink(SinkConfig {
-        async_write: true,
-        ..Default::default()
-    }).unwrap();
+    logger
+        .add_sink(SinkConfig {
+            async_write: true,
+            ..Default::default()
+        })
+        .unwrap();
 
     let start = std::time::Instant::now();
     for i in 0..10000 {
-        logger.info(format!("High throughput message {}", i)).unwrap();
+        logger
+            .info(format!("High throughput message {}", i))
+            .unwrap();
     }
     let duration = start.elapsed();
 
@@ -312,7 +334,7 @@ fn test_high_throughput() {
 #[test]
 fn test_sink_list() {
     let logger = Logger::new();
-    
+
     let id1 = logger.add_sink(SinkConfig::default()).unwrap();
     let id2 = logger.add_sink(SinkConfig::default()).unwrap();
     let id3 = logger.add_sink(SinkConfig::default()).unwrap();

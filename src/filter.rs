@@ -7,7 +7,7 @@ use crate::level::Level;
 use crate::record::LogRecord;
 
 /// Filter for log records based on level, module, and function.
-/// 
+///
 /// Filters determine which log records should be processed by a sink.
 /// Multiple filter criteria can be combined (all must match).
 pub struct Filter {
@@ -21,17 +21,13 @@ pub struct Filter {
 
 impl Filter {
     /// Creates a new filter with the specified criteria.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `min_level` - Minimum log level to accept
     /// * `module` - Module name to match (None accepts all)
     /// * `function` - Function name to match (None accepts all)
-    pub fn new(
-        min_level: Option<Level>,
-        module: Option<String>,
-        function: Option<String>,
-    ) -> Self {
+    pub fn new(min_level: Option<Level>, module: Option<String>, function: Option<String>) -> Self {
         Self {
             min_level,
             module,
@@ -40,13 +36,13 @@ impl Filter {
     }
 
     /// Checks if a log record matches all filter criteria.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `record` - The log record to check
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// `true` if the record matches all criteria, `false` otherwise
     pub fn matches(&self, record: &LogRecord) -> bool {
         if let Some(min_level) = self.min_level {

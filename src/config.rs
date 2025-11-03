@@ -76,11 +76,17 @@ impl Default for LoggerConfig {
 }
 
 impl LoggerConfig {
-    pub fn add_custom_level(&mut self, name: String, priority: u8, color: String) -> Result<(), crate::error::LoglyError> {
+    pub fn add_custom_level(
+        &mut self,
+        name: String,
+        priority: u8,
+        color: String,
+    ) -> Result<(), crate::error::LoglyError> {
         if self.custom_levels.contains_key(&name) {
             return Err(crate::error::LoglyError::CustomLevelExists(name));
         }
-        self.custom_levels.insert(name.clone(), CustomLevel::new(name, priority, color));
+        self.custom_levels
+            .insert(name.clone(), CustomLevel::new(name, priority, color));
         Ok(())
     }
 

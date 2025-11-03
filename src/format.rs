@@ -3,13 +3,13 @@
 //! This module handles the formatting of log records into human-readable strings.
 //! Supports custom format templates, JSON output, time formatting, and ANSI colors.
 
+use crate::level::Level;
 use crate::record::LogRecord;
 use serde_json;
 use std::collections::HashMap;
-use crate::level::Level;
 
 /// Formatter for converting log records to formatted strings.
-/// 
+///
 /// Supports multiple output formats including plain text, JSON, and custom templates.
 /// Handles ANSI color codes for console output and custom time formatting.
 #[derive(Clone)]
@@ -39,7 +39,7 @@ impl Formatter {
         for level in Level::all_levels() {
             level_colors.insert(level, level.default_color().to_string());
         }
-        
+
         Self {
             format_string,
             json,
@@ -73,12 +73,17 @@ impl Formatter {
 
         if self.date_enabled {
             let time_format = self.date_style.as_deref().unwrap_or("%Y-%m-%d %H:%M:%S");
-            output.push_str(&format!("{} | ", self.format_time(&record.timestamp, time_format)));
+            output.push_str(&format!(
+                "{} | ",
+                self.format_time(&record.timestamp, time_format)
+            ));
         }
 
         // Apply color to level if enabled
         let level_str = if self.color_enabled {
-            let color = self.level_colors.get(&record.level)
+            let color = self
+                .level_colors
+                .get(&record.level)
                 .map(|s| s.as_str())
                 .unwrap_or(record.level.default_color());
             self.colorize_level(record.level.as_str(), color)
@@ -103,41 +108,41 @@ impl Formatter {
     fn format_time(&self, timestamp: &chrono::DateTime<chrono::Utc>, pattern: &str) -> String {
         // Support custom time format patterns
         let mut result = pattern.to_string();
-        
+
         // Year patterns
         result = result.replace("YYYY", &timestamp.format("%Y").to_string());
         result = result.replace("YY", &timestamp.format("%y").to_string());
-        
+
         // Month patterns
         result = result.replace("MMMM", &timestamp.format("%B").to_string());
         result = result.replace("MMM", &timestamp.format("%b").to_string());
         result = result.replace("MM", &timestamp.format("%m").to_string());
-        
+
         // Day patterns
         result = result.replace("dddd", &timestamp.format("%A").to_string());
         result = result.replace("ddd", &timestamp.format("%a").to_string());
         result = result.replace("DD", &timestamp.format("%d").to_string());
-        
+
         // Hour patterns
         result = result.replace("HH", &timestamp.format("%H").to_string());
         result = result.replace("hh", &timestamp.format("%I").to_string());
-        
+
         // Minute/Second patterns
         result = result.replace("mm", &timestamp.format("%M").to_string());
         result = result.replace("ss", &timestamp.format("%S").to_string());
-        
+
         // Milliseconds/Microseconds
         result = result.replace("SSS", &timestamp.format("%3f").to_string());
         result = result.replace("SSSSSS", &timestamp.format("%6f").to_string());
-        
+
         // AM/PM
         result = result.replace("A", &timestamp.format("%p").to_string());
         result = result.replace("a", &timestamp.format("%P").to_string());
-        
+
         // Timezone
         result = result.replace("ZZ", &timestamp.format("%:z").to_string());
         result = result.replace("Z", &timestamp.format("%z").to_string());
-        
+
         result
     }
 
@@ -154,13 +159,15 @@ impl Formatter {
                 }
             }
         }
-        
+
         // Default time format
         result = result.replace("{time}", &record.timestamp.to_rfc3339());
-        
+
         // Apply color to level in custom format
         let level_str = if self.color_enabled {
-            let color = self.level_colors.get(&record.level)
+            let color = self
+                .level_colors
+                .get(&record.level)
                 .map(|s| s.as_str())
                 .unwrap_or(record.level.default_color());
             self.colorize_level(record.level.as_str(), color)
@@ -185,7 +192,7 @@ impl Formatter {
         if let Some(lineno) = record.lineno {
             result = result.replace("{lineno}", &lineno.to_string());
         }
-        
+
         // Add extra fields
         for (key, value) in &record.fields {
             result = result.replace(&format!("{{{}}}", key), &value.to_string());

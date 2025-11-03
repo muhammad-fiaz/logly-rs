@@ -4,10 +4,10 @@
 //! Requires the `gpu` feature flag and CUDA toolkit to be installed.
 //!
 //! # Example
-//! 
+//!
 //! ```no_run
 //! use logly::GpuLogger;
-//! 
+//!
 //! let gpu = GpuLogger::new(1024 * 1024)?; // 1MB buffer
 //! gpu.enable()?;
 //! # Ok::<(), logly::LoglyError>(())
@@ -21,7 +21,7 @@ use parking_lot::RwLock;
 use std::sync::Arc;
 
 /// GPU logger for CUDA-accelerated logging operations.
-/// 
+///
 /// Manages GPU device initialization, buffer allocation, and data transfer.
 /// Falls back gracefully to CPU-only logging if GPU is unavailable.
 pub struct GpuLogger {
@@ -40,13 +40,13 @@ pub struct GpuLogger {
 
 impl GpuLogger {
     /// Creates a new GPU logger with the specified buffer size.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `buffer_size` - Size of the GPU buffer in bytes
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// A new GpuLogger instance, or an error if initialization fails
     pub fn new(buffer_size: usize) -> Result<Self> {
         #[cfg(feature = "gpu")]
@@ -77,9 +77,9 @@ impl GpuLogger {
     }
 
     /// Checks if GPU acceleration is available.
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// `true` if CUDA device is initialized and available, `false` otherwise
     pub fn is_available(&self) -> bool {
         #[cfg(feature = "gpu")]
@@ -94,24 +94,26 @@ impl GpuLogger {
     }
 
     /// Checks if GPU logging is currently enabled.
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// `true` if GPU logging is enabled, `false` otherwise
     pub fn is_enabled(&self) -> bool {
         *self.enabled.read()
     }
 
     /// Enables GPU logging.
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// An error if GPU is not available or initialization fails
     pub fn enable(&self) -> Result<()> {
         #[cfg(feature = "gpu")]
         {
             if self.device.is_none() {
-                return Err(LoglyError::GpuError("CUDA device not available".to_string()));
+                return Err(LoglyError::GpuError(
+                    "CUDA device not available".to_string(),
+                ));
             }
             *self.enabled.write() = true;
             Ok(())
@@ -119,7 +121,9 @@ impl GpuLogger {
 
         #[cfg(not(feature = "gpu"))]
         {
-            Err(LoglyError::GpuError("GPU feature not enabled. Compile with --features gpu".to_string()))
+            Err(LoglyError::GpuError(
+                "GPU feature not enabled. Compile with --features gpu".to_string(),
+            ))
         }
     }
 
@@ -129,9 +133,9 @@ impl GpuLogger {
     }
 
     /// Allocates GPU buffer for log data (only available with gpu feature).
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// An error if buffer allocation fails
     #[cfg(feature = "gpu")]
     pub fn allocate_buffer(&self) -> Result<()> {
@@ -141,21 +145,26 @@ impl GpuLogger {
                     *self.buffer.write() = Some(buffer);
                     Ok(())
                 }
-                Err(e) => Err(LoglyError::GpuError(format!("Failed to allocate GPU buffer: {:?}", e))),
+                Err(e) => Err(LoglyError::GpuError(format!(
+                    "Failed to allocate GPU buffer: {:?}",
+                    e
+                ))),
             }
         } else {
-            Err(LoglyError::GpuError("CUDA device not available".to_string()))
+            Err(LoglyError::GpuError(
+                "CUDA device not available".to_string(),
+            ))
         }
     }
 
     /// Writes log data to GPU memory (only available with gpu feature).
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `data` - Byte slice to write to GPU
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// An error if GPU write fails
     #[cfg(feature = "gpu")]
     pub fn write_to_gpu(&self, data: &[u8]) -> Result<()> {
@@ -173,17 +182,22 @@ impl GpuLogger {
             // Copy data to GPU
             match device.htod_copy(data.to_vec()) {
                 Ok(_) => Ok(()),
-                Err(e) => Err(LoglyError::GpuError(format!("Failed to copy to GPU: {:?}", e))),
+                Err(e) => Err(LoglyError::GpuError(format!(
+                    "Failed to copy to GPU: {:?}",
+                    e
+                ))),
             }
         } else {
-            Err(LoglyError::GpuError("CUDA device not available".to_string()))
+            Err(LoglyError::GpuError(
+                "CUDA device not available".to_string(),
+            ))
         }
     }
 
     /// Writes log data to GPU memory (stub when gpu feature is disabled).
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// An error indicating GPU feature is not enabled
     #[cfg(not(feature = "gpu"))]
     pub fn write_to_gpu(&self, _data: &[u8]) -> Result<()> {
@@ -191,9 +205,9 @@ impl GpuLogger {
     }
 
     /// Returns information about GPU logging status.
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// A string describing GPU device, buffer size, and status
     pub fn get_info(&self) -> String {
         #[cfg(feature = "gpu")]

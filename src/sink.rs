@@ -42,7 +42,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 /// Configuration for a log sink.
-/// 
+///
 /// Defines all settings for a single output destination including path,
 /// rotation, filtering, formatting, and performance options.
 pub struct SinkConfig {
@@ -104,7 +104,7 @@ impl Default for SinkConfig {
 }
 
 /// A log output destination (sink).
-/// 
+///
 /// Manages writing log records to console or file with optional filtering,
 /// formatting, rotation, and async writes.
 pub struct Sink {
@@ -128,25 +128,28 @@ pub struct Sink {
 
 impl Sink {
     /// Sets custom colors for log levels.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `colors` - Map of log levels to ANSI color codes
-    pub fn set_level_colors(&mut self, colors: std::collections::HashMap<crate::level::Level, String>) {
+    pub fn set_level_colors(
+        &mut self,
+        colors: std::collections::HashMap<crate::level::Level, String>,
+    ) {
         self.formatter = self.formatter.clone().with_level_colors(colors);
     }
 }
 
 impl Sink {
     /// Creates a new sink with the specified configuration.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `id` - Unique sink identifier
     /// * `config` - Sink configuration
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// A new Sink instance, or an error if initialization fails
     pub fn new(id: usize, config: SinkConfig) -> Result<Self> {
         let filter = Filter::new(
@@ -160,17 +163,15 @@ impl Sink {
             config.json,
             config.date_enabled,
             config.date_style.clone(),
-        ).with_color(config.color);
+        )
+        .with_color(config.color);
 
         let writer = if let Some(ref path) = config.path {
             // Create parent directories if they don't exist
             if let Some(parent) = path.parent() {
                 std::fs::create_dir_all(parent)?;
             }
-            let file = OpenOptions::new()
-                .create(true)
-                .append(true)
-                .open(path)?;
+            let file = OpenOptions::new().create(true).append(true).open(path)?;
             Some(BufWriter::with_capacity(config.buffer_size, file))
         } else {
             None
@@ -178,11 +179,11 @@ impl Sink {
 
         let (sender, writer_arc) = if config.async_write {
             let (s, r) = bounded(config.max_buffered_lines);
-            
+
             let writer_clone = Arc::new(RwLock::new(writer));
             let writer_ref = Arc::clone(&writer_clone);
             let formatter_clone = formatter.clone();
-            
+
             std::thread::spawn(move || {
                 while let Ok(record) = r.recv() {
                     if let Some(ref mut w) = *writer_ref.write() {
@@ -228,17 +229,22 @@ impl Sink {
     }
 
     /// Writes a log record to this sink.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `record` - The log record to write
     /// * `global_console` - Whether console output is globally enabled
     /// * `global_storage` - Whether file storage is globally enabled
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// An error if writing fails
-    pub fn log(&self, record: &LogRecord, global_console: bool, global_storage: bool) -> Result<()> {
+    pub fn log(
+        &self,
+        record: &LogRecord,
+        global_console: bool,
+        global_storage: bool,
+    ) -> Result<()> {
         if !*self.enabled.read() {
             return Ok(());
         }
@@ -271,18 +277,18 @@ impl Sink {
                     if let Some(parent) = path.parent() {
                         std::fs::create_dir_all(parent)?;
                     }
-                    let file = OpenOptions::new()
-                        .create(true)
-                        .append(true)
-                        .open(path)?;
-                    *self.writer.write() = Some(BufWriter::with_capacity(self.config.buffer_size, file));
+                    let file = OpenOptions::new().create(true).append(true).open(path)?;
+                    *self.writer.write() =
+                        Some(BufWriter::with_capacity(self.config.buffer_size, file));
                 }
             }
             rotation.update_size(data_size);
         }
 
         if let Some(ref sender) = self.sender {
-            sender.send(record.clone()).map_err(|_| crate::error::LoglyError::ChannelSend)?;
+            sender
+                .send(record.clone())
+                .map_err(|_| crate::error::LoglyError::ChannelSend)?;
         } else if let Some(ref mut writer) = *self.writer.write() {
             writeln!(writer, "{}", formatted)?;
             writer.flush()?;

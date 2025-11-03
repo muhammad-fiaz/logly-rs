@@ -22,7 +22,7 @@ pub type ColorCallback = Arc<dyn Fn(Level, &str) -> String + Send + Sync>;
 pub type ExceptionCallback = Arc<dyn Fn(&str, &str) -> () + Send + Sync>;
 
 /// Manages all callback types for the logging system.
-/// 
+///
 /// CallbackManager is thread-safe and allows multiple callbacks of each type
 /// to be registered and executed. All callbacks are stored in Arc<RwLock<>> for
 /// safe concurrent access.
@@ -47,7 +47,7 @@ impl CallbackManager {
     }
 
     /// Adds a log callback that will be executed for each log record.
-    /// 
+    ///
     /// # Arguments
     /// * `callback` - Function that takes a LogRecord and returns Result<(), String>
     pub fn add_log_callback(&self, callback: LogCallback) {
@@ -55,7 +55,7 @@ impl CallbackManager {
     }
 
     /// Adds a color callback for custom color formatting.
-    /// 
+    ///
     /// # Arguments
     /// * `callback` - Function that takes Level and message, returns formatted string
     pub fn add_color_callback(&self, callback: ColorCallback) {
@@ -63,7 +63,7 @@ impl CallbackManager {
     }
 
     /// Adds an exception callback for error handling.
-    /// 
+    ///
     /// # Arguments
     /// * `callback` - Function that takes error message and backtrace
     pub fn add_exception_callback(&self, callback: ExceptionCallback) {
@@ -71,36 +71,36 @@ impl CallbackManager {
     }
 
     /// Executes all registered log callbacks for a given record.
-    /// 
+    ///
     /// # Arguments
     /// * `record` - The log record to pass to callbacks
-    /// 
+    ///
     /// # Returns
     /// Vector of error messages from failed callbacks
     pub fn execute_log_callbacks(&self, record: &LogRecord) -> Vec<String> {
         let callbacks = self.log_callbacks.read();
         let mut errors = Vec::new();
-        
+
         for callback in callbacks.iter() {
             if let Err(e) = callback(record) {
                 errors.push(e);
             }
         }
-        
+
         errors
     }
 
     /// Executes the first registered color callback.
-    /// 
+    ///
     /// # Arguments
     /// * `level` - Log level for color selection
     /// * `message` - Message text to format
-    /// 
+    ///
     /// # Returns
     /// Some(formatted_string) if callback exists, None otherwise
     pub fn execute_color_callbacks(&self, level: Level, message: &str) -> Option<String> {
         let callbacks = self.color_callbacks.read();
-        
+
         if let Some(callback) = callbacks.first() {
             Some(callback(level, message))
         } else {
@@ -109,13 +109,13 @@ impl CallbackManager {
     }
 
     /// Executes all registered exception callbacks.
-    /// 
+    ///
     /// # Arguments
     /// * `error` - Error message
     /// * `backtrace` - Stack backtrace string
     pub fn execute_exception_callbacks(&self, error: &str, backtrace: &str) {
         let callbacks = self.exception_callbacks.read();
-        
+
         for callback in callbacks.iter() {
             callback(error, backtrace);
         }
