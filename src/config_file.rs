@@ -154,10 +154,10 @@ impl ConfigFileLoader {
 
         if let Some(logly) = file.logly {
             // Configuration section
-            if let Some(cfg) = logly.configuration {
-                if let Some(level_str) = cfg.level {
-                    config.level = level_str.parse::<Level>()?;
-                }
+            if let Some(cfg) = logly.configuration
+                && let Some(level_str) = cfg.level
+            {
+                config.level = level_str.parse::<Level>()?;
             }
 
             // Display section
@@ -208,10 +208,10 @@ impl ConfigFileLoader {
             }
 
             // Sinks section
-            if let Some(sinks) = logly.sinks {
-                if let Some(v) = sinks.auto_sink {
-                    config.auto_sink = v;
-                }
+            if let Some(sinks) = logly.sinks
+                && let Some(v) = sinks.auto_sink
+            {
+                config.auto_sink = v;
             }
 
             // GPU section

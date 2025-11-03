@@ -150,14 +150,13 @@ impl Formatter {
         let mut result = fmt.to_string();
 
         // Handle time with custom format: {time:YYYY-MM-DD HH:mm:ss}
-        if result.contains("{time:") {
-            if let Some(start) = result.find("{time:") {
-                if let Some(end) = result[start..].find('}') {
-                    let time_pattern = &result[start + 6..start + end];
-                    let formatted_time = self.format_time(&record.timestamp, time_pattern);
-                    result = result.replace(&format!("{{time:{}}}", time_pattern), &formatted_time);
-                }
-            }
+        if result.contains("{time:")
+            && let Some(start) = result.find("{time:")
+            && let Some(end) = result[start..].find('}')
+        {
+            let time_pattern = &result[start + 6..start + end];
+            let formatted_time = self.format_time(&record.timestamp, time_pattern);
+            result = result.replace(&format!("{{time:{}}}", time_pattern), &formatted_time);
         }
 
         // Default time format

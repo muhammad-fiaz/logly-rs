@@ -50,10 +50,10 @@ impl Logger {
         };
 
         // Check for updates on initialization
-        if initial_config.enable_version_check {
-            if let Ok(Some(msg)) = logger.version_checker.read().check_for_updates() {
-                eprintln!("{}", msg);
-            }
+        if initial_config.enable_version_check
+            && let Ok(Some(msg)) = logger.version_checker.read().check_for_updates()
+        {
+            eprintln!("{}", msg);
         }
 
         logger
@@ -77,10 +77,10 @@ impl Logger {
             config_file_loader: Arc::new(RwLock::new(config_loader)),
         };
 
-        if file_config.enable_version_check {
-            if let Ok(Some(msg)) = logger.version_checker.read().check_for_updates() {
-                eprintln!("{}", msg);
-            }
+        if file_config.enable_version_check
+            && let Ok(Some(msg)) = logger.version_checker.read().check_for_updates()
+        {
+            eprintln!("{}", msg);
         }
 
         Ok(logger)
@@ -133,12 +133,13 @@ impl Logger {
         }
 
         // Initialize auto-sink
-        if auto_sink && !*self.auto_sink_initialized.read() {
-            if let Err(e) = self.initialize_auto_sink() {
-                eprintln!("[LOGLY WARNING] Auto-sink initialization failed: {}", e);
-                if debug_mode {
-                    eprintln!("[LOGLY DEBUG] Auto-sink initialization failed: {}", e);
-                }
+        if auto_sink
+            && !*self.auto_sink_initialized.read()
+            && let Err(e) = self.initialize_auto_sink()
+        {
+            eprintln!("[LOGLY WARNING] Auto-sink initialization failed: {}", e);
+            if debug_mode {
+                eprintln!("[LOGLY DEBUG] Auto-sink initialization failed: {}", e);
             }
         }
     }
@@ -281,14 +282,14 @@ impl Logger {
         }
 
         // Write to GPU if enabled
-        if let Some(ref gpu) = *self.gpu_logger.read() {
-            if gpu.is_enabled() {
-                let data = format!("{:?}", record).into_bytes();
-                if let Err(e) = gpu.write_to_gpu(&data) {
-                    if debug_mode {
-                        eprintln!("[LOGLY DEBUG] GPU write error: {}", e);
-                    }
-                }
+        if let Some(ref gpu) = *self.gpu_logger.read()
+            && gpu.is_enabled()
+        {
+            let data = format!("{:?}", record).into_bytes();
+            if let Err(e) = gpu.write_to_gpu(&data)
+                && debug_mode
+            {
+                eprintln!("[LOGLY DEBUG] GPU write error: {}", e);
             }
         }
 

@@ -45,10 +45,10 @@ impl Filter {
     ///
     /// `true` if the record matches all criteria, `false` otherwise
     pub fn matches(&self, record: &LogRecord) -> bool {
-        if let Some(min_level) = self.min_level {
-            if record.level < min_level {
-                return false;
-            }
+        if let Some(min_level) = self.min_level
+            && record.level < min_level
+        {
+            return false;
         }
 
         if let Some(ref module_filter) = self.module {
