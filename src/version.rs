@@ -82,8 +82,8 @@ impl VersionChecker {
         let url = format!("https://crates.io/api/v1/crates/{}", env!("CARGO_PKG_NAME"));
 
         match ureq::get(&url).call() {
-            Ok(response) => {
-                let body = response.into_string().map_err(|e| {
+            Ok(mut response) => {
+                let body = response.body_mut().read_to_string().map_err(|e| {
                     LoglyError::VersionCheckError(format!("Failed to read response: {}", e))
                 })?;
 

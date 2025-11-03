@@ -39,13 +39,23 @@ jobs:
       - name: Prepare deployment
         run: |
           mkdir -p public
-          cp -r target/doc/* public/
-          cp -r docs/book/* public/book/
+          # Copy rustdoc output if present
+          if [ -d target/doc ]; then
+            cp -r target/doc/* public/ || true
+          fi
+          # Copy mdbook output if present
+          if [ -d docs/book ]; then
+            mkdir -p public/book
+            cp -r docs/book/* public/book/ || true
+          fi
+          # Provide a redirect to the crate docs index (if generated)
           echo '<meta http-equiv="refresh" content="0; url=logly/index.html">' > public/index.html
-      
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GH_TOKEN }}
-          publish_dir: ./public
-          cname: muhammad-fiaz.github.io
+          path: ./public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

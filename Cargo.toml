@@ -14,34 +14,36 @@ readme = "README.md"
 
 [dependencies]
 # Core async runtime
-tokio = { version = "1.40", features = ["full"] }
+tokio = { version = "1.48", features = ["full"] }
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-toml = "0.5"
+toml = "0.9"
 # Time handling
 chrono = { version = "0.4", features = ["serde"] }
 # Async channels
 crossbeam-channel = "0.5"
 # File operations
-regex = "1.10"
+regex = "1.12"
 # Thread pool for callbacks
-rayon = "1.10"
+rayon = "1.11"
 # Atomic operations
 parking_lot = "0.12"
 # Error handling
-thiserror = "1.0"
+thiserror = "2.0"
 anyhow = "1.0"
 # CUDA support (optional)
-cudarc = { version = "0.11", optional = true, features = ["cuda-12050"] }
+cudarc = { version = "0.17", optional = true, features = ["cuda-12050"] }
 # Version checking
-ureq = { version = "2.9", optional = true, default-features = false, features = ["tls"] }
+# ureq uses the feature name "_tls" (note leading underscore). Replace the incorrect
+# "tls" feature so cargo can pick the newer 3.x releases during `cargo upgrade`.
+ureq = { version = "3.1", optional = true, default-features = false, features = ["_tls"] }
 # Backtrace for error handling
 backtrace = "0.3"
 
 [dev-dependencies]
-tempfile = "3.8"
-criterion = "0.5"
+tempfile = "3.23"
+criterion = "0.7"
 
 [[bench]]
 name = "logging_benchmark"
