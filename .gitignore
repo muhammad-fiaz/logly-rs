@@ -51,3 +51,4 @@ logly.toml
 !logly.toml.example
 !logly.production.toml
 !logly.development.toml
+docs/book

@@ -3,30 +3,17 @@
 [Introduction](./introduction.md)
 
 # Getting Started
-- [Installation](./installation.md)
-- [Quick Start](./quick-start.md)
-- [Basic Configuration](./basic-configuration.md)
+- [Installation](./INSTALLATION.md)
+- [Quick Start](./QUICK_START.md)
+- [Configuration](./CONFIGURATION.md)
+- [Performance](./PERFORMANCE.md)
 
-# Core Concepts
-- [Log Levels](./log-levels.md)
-- [Sinks](./sinks.md)
-- [Filtering](./filtering.md)
-- [Formatting](./formatting.md)
-
-# Advanced Features
-- [Async Logging](./async-logging.md)
-- [File Rotation](./file-rotation.md)
-- [Context Binding](./context-binding.md)
-- [Custom Colors](./custom-colors.md)
-- [Callbacks](./callbacks.md)
-
-# API Reference
-- [Logger](./api/logger.md)
-- [Configuration](./api/configuration.md)
-- [Sink Management](./api/sinks.md)
-
-# Examples
-- [Basic Usage](./examples/basic.md)
-- [Multi-Sink](./examples/multi-sink.md)
-- [JSON Logging](./examples/json.md)
-- [Async Operations](./examples/async.md)
+# Guides
+- [Log Levels](./guides/LEVELS.md)
+- [Sinks](./guides/SINKS.md)
+- [Formatting](./guides/FORMATTING.md)
+- [File Rotation](./guides/ROTATION.md)
+- [Callbacks](./guides/CALLBACKS.md)
+- [Configuration File](./guides/CONFIG_FILE.md)
+- [GPU Support](./guides/GPU.md)
+- [Troubleshooting](./guides/TROUBLESHOOTING.md)

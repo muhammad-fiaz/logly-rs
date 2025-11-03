@@ -46,6 +46,6 @@ Logly-rs follows these principles:
 
 ## Next Steps
 
-- [Installation](./installation.md): Get started with logly-rs
-- [Quick Start](./quick-start.md): Your first logging program
-- [Examples](./examples/basic.md): Learn by example
+- [Installation](./INSTALLATION.md): Get started with logly-rs
+- [Quick Start](./QUICK_START.md): Your first logging program
+- [Configuration](./CONFIGURATION.md): Configure your logger
