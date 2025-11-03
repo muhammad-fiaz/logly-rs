@@ -7,9 +7,13 @@ src = "src"
 
 [build]
 build-dir = "book"
+extra-watch-dirs = ["src"]
 
 [output.html]
 default-theme = "rust"
 git-repository-url = "https://github.com/muhammad-fiaz/logly-rs"
 edit-url-template = "https://github.com/muhammad-fiaz/logly-rs/edit/main/docs/{path}"
 no-section-label = false
+
+[output.html.playground]
+editable = false

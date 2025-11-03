@@ -16,7 +16,9 @@ logger.info("Works out of the box!".to_string())?;
 
 ### LoggerConfig Structure
 
-```rust
+The `LoggerConfig` struct contains all configuration options:
+
+```rust,ignore
 pub struct LoggerConfig {
     // Log level filtering
     pub level: Level,                              // Minimum log level (default: Info)
