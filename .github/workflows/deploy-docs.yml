@@ -1,0 +1,51 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Install mdBook
+        run: |
+          mkdir -p ~/mdbook
+          curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.4.36/mdbook-v0.4.36-x86_64-unknown-linux-gnu.tar.gz | tar -xz --directory=~/mdbook
+          echo "$HOME/mdbook" >> $GITHUB_PATH
+      
+      - name: Build documentation
+        run: cargo doc --no-deps --all-features
+      
+      - name: Build mdBook
+        run: |
+          cd docs
+          mdbook build
+      
+      - name: Prepare deployment
+        run: |
+          mkdir -p public
+          cp -r target/doc/* public/
+          cp -r docs/book/* public/book/
+          echo '<meta http-equiv="refresh" content="0; url=logly/index.html">' > public/index.html
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          publish_dir: ./public
+          cname: muhammad-fiaz.github.io

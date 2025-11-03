@@ -1,26 +1,57 @@
 [package]
 name = "logly"
-version = "0.0.3"
+version = "0.0.4"
 edition = "2021"
-description = "A Rust logging package designed to simplify and enhance your logging experience."
+description = "High-performance, structured logging library with async support, rotation, filtering, and GPU/CPU optimization"
 license = "MIT"
-authors = ["muhammad-fiaz"]
+authors = ["muhammad-fiaz <contact@muhammadfiaz.com>"]
 repository = "https://github.com/muhammad-fiaz/logly-rs.git"
-keywords = ["logging", "log", "logly", "logly-rs","rust"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+homepage = "https://github.com/muhammad-fiaz/logly-rs"
+documentation = "https://github.com/muhammad-fiaz/logly-rs/blob/main/README.md"
+keywords = ["logging", "log", "async", "structured", "performance"]
+categories = ["development-tools::debugging"]
+readme = "README.md"
 
 [dependencies]
-chrono = "0.4.31"
-log = "0.4.20"
-fern = "0.6"
-colorama = "0.1.0"
-env_logger = "0.11.2"
-termcolor = "1.1"
-ansi_term = "0.12.1"
-regex = "1.10.2"
+# Core async runtime
+tokio = { version = "1.40", features = ["full"] }
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.5"
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+# Async channels
+crossbeam-channel = "0.5"
+# File operations
+regex = "1.10"
+# Thread pool for callbacks
+rayon = "1.10"
+# Atomic operations
+parking_lot = "0.12"
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+# CUDA support (optional)
+cudarc = { version = "0.11", optional = true }
+# Version checking
+ureq = { version = "2.9", optional = true, default-features = false, features = ["tls"] }
+# Backtrace for error handling
+backtrace = "0.3"
 
-# to use cargo run uncomment the following lines
-#[[bin]]
-#name = "logly"
-#path = "src/lib.rs"
+[dev-dependencies]
+tempfile = "3.8"
+criterion = "0.5"
+
+[[bench]]
+name = "logging_benchmark"
+harness = false
+
+[features]
+default = ["async", "rotation", "json", "colors", "auto-update-check"]
+async = []
+rotation = []
+json = []
+colors = []
+gpu = ["cudarc"]  # Optional experimental feature
+auto-update-check = ["ureq"]

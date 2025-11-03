@@ -1,1 +1,53 @@
-/target
+# Rust/Cargo
+/target/
+**/*.rs.bk
+*.pdb
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+logly_debug.log
+
+# Test outputs
+/test_output/
+/temp/
+
+# Documentation build
+/book/
+/docs/book/
+
+# Benchmarks
+/benches/target/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Backup files
+*.bak
+*.tmp
+*.temp
+
+# Coverage
+*.profraw
+*.profdata
+/coverage/
+
+# Release artifacts
+*.tar.gz
+*.zip
+
+# Local configuration
+logly.toml
+!logly.toml.example
+!logly.production.toml
+!logly.development.toml

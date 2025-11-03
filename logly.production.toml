@@ -1,0 +1,61 @@
+# Logly Production Configuration
+# Optimized for production deployments
+# Version: 0.0.4
+
+[logly.configuration]
+level = "INFO"                    # INFO and above for production
+auto_sink = false                 # Manual sink management
+
+[logly.display]
+# Production display settings
+global_color_display = false      # No colors in production logs
+global_console_display = false    # Disable console (use files only)
+global_file_storage = true        # Enable file storage
+
+color = false
+console = false
+show_time = true
+show_module = false               # Hide module info for cleaner logs
+show_function = false             # Hide function info
+show_filename = false
+show_lineno = false
+
+[logly.format]
+json = true                       # JSON format for log aggregation
+pretty_json = false               # Compact JSON
+log_compact = true                # Compact format for efficiency
+
+# Production sinks configuration
+[[logly.sinks]]
+path = "logs/app.log"
+rotation = "daily"
+retention = 30                    # Keep 30 days
+async_write = true
+json = true
+
+[[logly.sinks]]
+path = "logs/errors.log"
+filter_min_level = "ERROR"
+rotation = "daily"
+retention = 90                    # Keep errors for 90 days
+async_write = true
+json = true
+
+[[logly.sinks]]
+path = "logs/critical.log"
+filter_min_level = "CRITICAL"
+retention = 365                   # Keep critical logs for 1 year
+async_write = true
+json = true
+
+[logly.gpu]
+enable_gpu = false                # GPU disabled in production
+gpu_buffer_size = 1048576
+
+[logly.features]
+enable_callbacks = true
+enable_exception_handling = true
+enable_version_check = false      # Disable update checks in production
+
+[logly.debug]
+debug_mode = false                # Disable debug mode in production

@@ -1,0 +1,52 @@
+# Logly Development Configuration
+# Optimized for development and debugging
+# Version: 0.0.4
+
+[logly.configuration]
+level = "TRACE"                   # Show all log levels for debugging
+auto_sink = true                  # Auto-sink for quick start
+
+[logly.display]
+# Development display settings
+global_color_display = true       # Colors for better readability
+global_console_display = true     # Console output for immediate feedback
+global_file_storage = true        # Also save to files for analysis
+
+color = true
+console = true
+show_time = true
+show_module = true
+show_function = true              # Show function names for debugging
+show_filename = true              # Show source files
+show_lineno = true                # Show line numbers
+
+[logly.format]
+json = false                      # Human-readable format for development
+pretty_json = false
+log_compact = false
+
+# Development sinks configuration
+[[logly.sinks]]
+path = "logs/dev.log"
+rotation = "daily"
+retention = 3
+async_write = true
+
+[[logly.sinks]]
+path = "logs/dev_errors.log"
+filter_min_level = "ERROR"
+rotation = "daily"
+retention = 7
+
+[logly.gpu]
+enable_gpu = false                # GPU disabled in development
+gpu_buffer_size = 1048576
+
+[logly.features]
+enable_callbacks = true
+enable_exception_handling = true
+enable_version_check = true
+
+[logly.debug]
+debug_mode = true                 # Enable debug mode for troubleshooting
+debug_log_file = "logs/logly_debug.log"

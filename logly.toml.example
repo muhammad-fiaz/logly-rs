@@ -1,0 +1,79 @@
+# Logly Configuration File - Complete Example
+# Copy this file to logly.toml in your project root
+# All settings are optional - defaults are shown
+# Version: 0.0.4
+
+[logly.configuration]
+# Minimum log level to display
+# Options: TRACE, DEBUG, INFO, SUCCESS, WARNING, ERROR, FAIL, CRITICAL
+level = "INFO"
+auto_sink = true                  # Automatically create console sink
+
+[logly.display]
+# Global display controls - control output globally across all sinks
+global_color_display = true       # Enable/disable colors globally
+global_console_display = true     # Enable/disable console output
+global_file_storage = true        # Enable/disable file storage
+
+# Color settings
+color = true                      # Enable ANSI colors
+
+# Display options
+console = true                    # Console output
+show_time = true                  # Show timestamps
+show_module = true                # Show module name
+show_function = false             # Show function name
+show_filename = false             # Show source filename
+show_lineno = false               # Show line number
+
+[logly.format]
+# Output format settings
+json = false                      # Output as JSON
+pretty_json = false               # Pretty-print JSON
+log_compact = false               # Compact format (minimal spacing)
+
+# Example sink configurations (optional)
+# Uncomment and modify as needed
+
+# [[logly.sinks]]
+# path = "logs/app.log"
+# rotation = "daily"              # Options: hourly, daily, weekly, monthly, yearly
+# size_limit = "10MB"             # Size-based rotation
+# retention = 7                   # Keep 7 rotated files
+# async_write = true              # Async writing for performance
+# filter_min_level = "INFO"      # Filter by level
+# json = false                    # JSON format for this sink
+
+# [[logly.sinks]]
+# path = "logs/errors.log"
+# filter_min_level = "ERROR"     # Only errors and above
+# rotation = "daily"
+# retention = 30
+# async_write = true
+
+[logly.gpu]
+# GPU Support (Experimental) - Requires compilation with --features gpu
+enable_gpu = false                # Enable GPU acceleration
+gpu_buffer_size = 1048576         # GPU buffer size in bytes (1MB)
+
+[logly.features]
+# Feature toggles
+enable_callbacks = true           # Enable callback system
+enable_exception_handling = true  # Enable exception handling
+enable_version_check = true       # Check for updates on startup
+
+[logly.debug]
+# Debug mode settings
+debug_mode = false                # Enable debug logging
+# debug_log_file = "logs/logly_debug.log"  # Debug log file (stderr if not set)
+
+# ============================================================================
+# NOTES
+# ============================================================================
+# - Configuration priority: Manual > File > Default
+# - All paths support automatic directory creation
+# - Time formats support custom patterns (see docs/guides/FORMATTING.md)
+# - Rotation options: hourly, daily, weekly, monthly, yearly
+# - Size limits: "10MB", "1GB", "500KB" (case-insensitive)
+# - For per-sink configuration, use manual sink management in code
+# - Multiple sinks can be defined using [[logly.sinks]] array syntax

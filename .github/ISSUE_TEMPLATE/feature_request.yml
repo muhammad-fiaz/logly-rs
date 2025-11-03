@@ -1,0 +1,86 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[FEATURE] "
+labels: ["enhancement", "triage"]
+assignees: []
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature Summary
+      description: Provide a brief summary of the feature you'd like to see.
+      placeholder: A clear and concise description of the proposed feature.
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem/Use Case
+      description: Describe the problem this feature would solve or the use case it would enable.
+      placeholder: |
+        - What problem are you trying to solve?
+        - What use case does this feature enable?
+        - Why is this important?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your proposed solution or implementation approach.
+      placeholder: |
+        - How should this feature work?
+        - What would the API look like?
+        - Any implementation details or considerations?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Describe any alternative solutions or workarounds you've considered.
+      placeholder: |
+        - What other approaches have you considered?
+        - Are there existing workarounds?
+        - Why are the alternatives not sufficient?
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Nice to have
+        - Would be helpful
+        - Important for my use case
+        - Critical for my project
+        - Blocker (cannot use logly-rs without this)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: implementation-interest
+    attributes:
+      label: Implementation Interest
+      description: Are you interested in implementing this feature yourself?
+      options:
+        - "No, I just want to suggest the feature"
+        - "Yes, I can implement this feature"
+        - "Maybe, I'd like to contribute but need guidance"
+        - "Not sure yet"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched for similar feature requests and couldn't find any
+          required: true
+        - label: This feature would benefit other logly-rs users
+          required: true
