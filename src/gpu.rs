@@ -5,7 +5,7 @@
 //!
 //! This module uses the cudarc driver API to allocate GPU memory and transfer log data
 //! to the device for high-throughput scenarios. The implementation uses:
-//! - `CudaDevice` for device management (similar to CPU's GlobalAlloc)
+//! - `CudaContext` for device management (similar to CPU's GlobalAlloc)
 //! - `CudaSlice<T>` for GPU memory allocation (similar to CPU's `Vec<T>`)
 //! - `htod_sync_copy` for host-to-device memory transfers
 //!
@@ -34,8 +34,7 @@
 //!
 //! Supports CUDA 11.4-11.8, 12.0-12.9, and 13.0 via cudarc.
 
-#[cfg(feature = "gpu")]
-use cudarc::driver::CudaDevice;
+
 
 use crate::error::{LoglyError, Result};
 use parking_lot::RwLock;
@@ -54,13 +53,13 @@ use std::sync::Arc;
 ///
 /// # Memory Management
 ///
-/// Uses `CudaDevice::htod_sync_copy` for synchronous host-to-device transfers.
+/// Uses `CudaContext::htod_sync_copy` for synchronous host-to-device transfers.
 /// Each write allocates a new `CudaSlice<u8>` on the device.
 pub struct GpuLogger {
-    /// CUDA device handle (`Arc<CudaDevice>` from cudarc)
+    /// CUDA context and stream (boxed to avoid exposing cudarc types)
     /// Only available when compiled with `gpu` feature
     #[cfg(feature = "gpu")]
-    device: Option<Arc<CudaDevice>>,
+    ctx_stream: Option<Box<dyn std::any::Any + Send + Sync>>,
     /// Whether GPU logging is currently enabled (thread-safe)
     enabled: Arc<RwLock<bool>>,
     /// Size of the GPU buffer in bytes (for informational purposes)
@@ -96,12 +95,16 @@ impl GpuLogger {
     pub fn new(buffer_size: usize) -> Result<Self> {
         #[cfg(feature = "gpu")]
         {
-            // Try to initialize CUDA device, but don't fail if unavailable
-            let device = CudaDevice::new(0).ok();
-            let is_available = device.is_some();
+            let ctx_stream = cudarc::driver::CudaContext::new(0)
+                .ok()
+                .map(|ctx| {
+                    let stream = ctx.default_stream();
+                    Box::new((ctx, stream)) as Box<dyn std::any::Any + Send + Sync>
+                });
+            let is_available = ctx_stream.is_some();
 
             Ok(Self {
-                device,
+                ctx_stream,
                 enabled: Arc::new(RwLock::new(is_available)),
                 buffer_size,
             })
@@ -140,7 +143,7 @@ impl GpuLogger {
     pub fn is_available(&self) -> bool {
         #[cfg(feature = "gpu")]
         {
-            self.device.is_some()
+            self.ctx_stream.is_some()
         }
 
         #[cfg(not(feature = "gpu"))]
@@ -193,7 +196,7 @@ impl GpuLogger {
     pub fn enable(&self) -> Result<()> {
         #[cfg(feature = "gpu")]
         {
-            if self.device.is_none() {
+            if self.ctx_stream.is_none() {
                 return Err(LoglyError::GpuError(
                     "CUDA device not available".to_string(),
                 ));
@@ -224,7 +227,7 @@ impl GpuLogger {
 
     /// Writes log data to GPU memory (only available with gpu feature).
     ///
-    /// Uses `CudaDevice::htod_sync_copy` to perform synchronous host-to-device
+    /// Uses `CudaContext::htod_sync_copy` to perform synchronous host-to-device
     /// memory transfer. Allocates a new `CudaSlice<u8>` for each write.
     ///
     /// # Arguments
@@ -257,16 +260,20 @@ impl GpuLogger {
             return Ok(());
         }
 
-        if let Some(ref device) = self.device {
-            // Allocate GPU buffer and copy data using cudarc driver API
-            // htod_sync_copy: host-to-device synchronous copy
-            // Returns CudaSlice<u8> which is automatically managed
-            match device.htod_sync_copy::<u8>(data) {
-                Ok(_buffer) => Ok(()),
-                Err(e) => Err(LoglyError::GpuError(format!(
-                    "Failed to copy to GPU: {:?}",
-                    e
-                ))),
+        if let Some(ref ctx_stream_box) = self.ctx_stream {
+            type CtxStream = (Arc<cudarc::driver::CudaContext>, Arc<cudarc::driver::CudaStream>);
+            if let Some((_ctx, stream)) = ctx_stream_box.downcast_ref::<CtxStream>() {
+                match stream.memcpy_stod(data) {
+                    Ok(_buffer) => Ok(()),
+                    Err(e) => Err(LoglyError::GpuError(format!(
+                        "Failed to copy to GPU: {:?}",
+                        e
+                    ))),
+                }
+            } else {
+                Err(LoglyError::GpuError(
+                    "Invalid CUDA context type".to_string(),
+                ))
             }
         } else {
             Err(LoglyError::GpuError(
@@ -321,7 +328,7 @@ impl GpuLogger {
     pub fn get_info(&self) -> String {
         #[cfg(feature = "gpu")]
         {
-            if self.device.is_some() {
+            if self.ctx_stream.is_some() {
                 format!(
                     "GPU Logging: Enabled\nDevice: CUDA Device 0\nBuffer Size: {} bytes\nStatus: {}",
                     self.buffer_size,
@@ -349,7 +356,7 @@ impl Default for GpuLogger {
             #[cfg(feature = "gpu")]
             {
                 Self {
-                    device: None,
+                    ctx_stream: None,
                     enabled: Arc::new(RwLock::new(false)),
                     buffer_size: 1024 * 1024,
                 }
