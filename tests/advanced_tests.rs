@@ -184,15 +184,21 @@ fn test_custom_level_priority() {
 
     logger.add_sink(SinkConfig::default()).unwrap();
 
-    assert!(logger
-        .log_custom("NOTICE", "Notice message".to_string())
-        .is_ok());
-    assert!(logger
-        .log_custom("ALERT", "Alert message".to_string())
-        .is_ok());
-    assert!(logger
-        .log_custom("INVALID", "Invalid message".to_string())
-        .is_err());
+    assert!(
+        logger
+            .log_custom("NOTICE", "Notice message".to_string())
+            .is_ok()
+    );
+    assert!(
+        logger
+            .log_custom("ALERT", "Alert message".to_string())
+            .is_ok()
+    );
+    assert!(
+        logger
+            .log_custom("INVALID", "Invalid message".to_string())
+            .is_err()
+    );
 }
 
 #[test]

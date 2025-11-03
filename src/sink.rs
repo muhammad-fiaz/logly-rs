@@ -34,7 +34,7 @@ use crate::format::Formatter;
 use crate::level::Level;
 use crate::record::LogRecord;
 use crate::rotation::{RotationManager, RotationPolicy};
-use crossbeam_channel::{bounded, Sender};
+use crossbeam_channel::{Sender, bounded};
 use parking_lot::RwLock;
 use std::fs::{File, OpenOptions};
 use std::io::{BufWriter, Write};

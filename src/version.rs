@@ -55,7 +55,10 @@ impl VersionChecker {
                     if self.is_newer(&latest, CRATE_VERSION) {
                         Ok(Some(format!(
                             "\n\u{2139}\u{fe0f}  A new version of {} is available: {} (current: {})\n   Update with: cargo update -p {}\n",
-                            env!("CARGO_PKG_NAME"), latest, CRATE_VERSION, env!("CARGO_PKG_NAME")
+                            env!("CARGO_PKG_NAME"),
+                            latest,
+                            CRATE_VERSION,
+                            env!("CARGO_PKG_NAME")
                         )))
                     } else {
                         Ok(None)
