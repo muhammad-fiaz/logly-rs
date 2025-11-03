@@ -1,12 +1,17 @@
 name: Deploy Documentation
 
 on:
+  # Trigger when files under `docs/` (or the workflow file) are changed in any
+  # branch — this lets commits that update docs kick off the deployment.
   push:
-    branches:
-      - main
     paths:
       - 'docs/**'
-      - '.github/workflows/docs-deploy.yml'
+      - '.github/workflows/deploy-docs.yml'
+  # Also run on PRs that modify docs so build artifacts can be validated.
+  pull_request:
+    paths:
+      - 'docs/**'
+      - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
 permissions:

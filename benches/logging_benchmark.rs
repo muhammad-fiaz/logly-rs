@@ -1,10 +1,10 @@
 // Performance benchmarks for logly
 
 use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
-use std::hint::black_box;
 use logly::prelude::*;
 use serde_json;
 use std::fs;
+use std::hint::black_box;
 use tempfile::TempDir;
 
 fn export_bench_result(bench_path: &str) {

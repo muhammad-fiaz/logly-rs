@@ -34,8 +34,6 @@
 //!
 //! Supports CUDA 11.4-11.8, 12.0-12.9, and 13.0 via cudarc.
 
-
-
 use crate::error::{LoglyError, Result};
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -95,12 +93,10 @@ impl GpuLogger {
     pub fn new(buffer_size: usize) -> Result<Self> {
         #[cfg(feature = "gpu")]
         {
-            let ctx_stream = cudarc::driver::CudaContext::new(0)
-                .ok()
-                .map(|ctx| {
-                    let stream = ctx.default_stream();
-                    Box::new((ctx, stream)) as Box<dyn std::any::Any + Send + Sync>
-                });
+            let ctx_stream = cudarc::driver::CudaContext::new(0).ok().map(|ctx| {
+                let stream = ctx.default_stream();
+                Box::new((ctx, stream)) as Box<dyn std::any::Any + Send + Sync>
+            });
             let is_available = ctx_stream.is_some();
 
             Ok(Self {
@@ -261,7 +257,10 @@ impl GpuLogger {
         }
 
         if let Some(ref ctx_stream_box) = self.ctx_stream {
-            type CtxStream = (Arc<cudarc::driver::CudaContext>, Arc<cudarc::driver::CudaStream>);
+            type CtxStream = (
+                Arc<cudarc::driver::CudaContext>,
+                Arc<cudarc::driver::CudaStream>,
+            );
             if let Some((_ctx, stream)) = ctx_stream_box.downcast_ref::<CtxStream>() {
                 match stream.memcpy_stod(data) {
                     Ok(_buffer) => Ok(()),
