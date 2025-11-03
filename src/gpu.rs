@@ -93,10 +93,13 @@ impl GpuLogger {
     pub fn new(buffer_size: usize) -> Result<Self> {
         #[cfg(feature = "gpu")]
         {
-            let ctx_stream = cudarc::driver::CudaContext::new(0).ok().map(|ctx| {
-                let stream = ctx.default_stream();
-                Box::new((ctx, stream)) as Box<dyn std::any::Any + Send + Sync>
-            });
+            let ctx_stream = std::panic::catch_unwind(|| cudarc::driver::CudaContext::new(0))
+                .ok()
+                .and_then(|r| r.ok())
+                .map(|ctx| {
+                    let stream = ctx.default_stream();
+                    Box::new((ctx, stream)) as Box<dyn std::any::Any + Send + Sync>
+                });
             let is_available = ctx_stream.is_some();
 
             Ok(Self {
