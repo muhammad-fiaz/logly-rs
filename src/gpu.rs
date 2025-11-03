@@ -3,18 +3,39 @@
 //! Provides optional GPU acceleration using CUDA for high-throughput logging scenarios.
 //! Requires the `gpu` feature flag and CUDA toolkit to be installed.
 //!
+//! This module uses the cudarc driver API to allocate GPU memory and transfer log data
+//! to the device for high-throughput scenarios. The implementation uses:
+//! - `CudaDevice` for device management (similar to CPU's GlobalAlloc)
+//! - `CudaSlice<T>` for GPU memory allocation (similar to CPU's `Vec<T>`)
+//! - `htod_sync_copy` for host-to-device memory transfers
+//!
+//! # Features
+//!
+//! - Automatic CUDA device initialization
+//! - Graceful fallback to CPU-only logging if GPU unavailable
+//! - Thread-safe enable/disable controls
+//! - Synchronous memory transfers for reliability
+//!
 //! # Example
 //!
 //! ```no_run
 //! use logly::GpuLogger;
 //!
 //! let gpu = GpuLogger::new(1024 * 1024)?; // 1MB buffer
-//! gpu.enable()?;
+//! if gpu.is_available() {
+//!     gpu.enable()?;
+//!     let data = b"log message";
+//!     gpu.write_to_gpu(data)?;
+//! }
 //! # Ok::<(), logly::LoglyError>(())
 //! ```
+//!
+//! # CUDA Version Support
+//!
+//! Supports CUDA 11.4-11.8, 12.0-12.9, and 13.0 via cudarc.
 
 #[cfg(feature = "gpu")]
-use cudarc::driver::{CudaDevice, CudaSlice};
+use cudarc::driver::CudaDevice;
 
 use crate::error::{LoglyError, Result};
 use parking_lot::RwLock;
@@ -22,18 +43,27 @@ use std::sync::Arc;
 
 /// GPU logger for CUDA-accelerated logging operations.
 ///
-/// Manages GPU device initialization, buffer allocation, and data transfer.
-/// Falls back gracefully to CPU-only logging if GPU is unavailable.
+/// Manages GPU device initialization, buffer allocation, and data transfer using
+/// the cudarc driver API. The device is initialized on creation and can be
+/// enabled/disabled at runtime.
+///
+/// # Thread Safety
+///
+/// This struct is thread-safe and can be shared across threads using Arc.
+/// The enabled state is protected by RwLock for concurrent access.
+///
+/// # Memory Management
+///
+/// Uses `CudaDevice::htod_sync_copy` for synchronous host-to-device transfers.
+/// Each write allocates a new `CudaSlice<u8>` on the device.
 pub struct GpuLogger {
-    /// CUDA device handle (only available with gpu feature)
+    /// CUDA device handle (`Arc<CudaDevice>` from cudarc)
+    /// Only available when compiled with `gpu` feature
     #[cfg(feature = "gpu")]
-    device: Option<CudaDevice>,
-    /// GPU memory buffer for log data (only available with gpu feature)
-    #[cfg(feature = "gpu")]
-    buffer: Arc<RwLock<Option<CudaSlice<u8>>>>,
-    /// Whether GPU logging is currently enabled
+    device: Option<Arc<CudaDevice>>,
+    /// Whether GPU logging is currently enabled (thread-safe)
     enabled: Arc<RwLock<bool>>,
-    /// Size of the GPU buffer in bytes
+    /// Size of the GPU buffer in bytes (for informational purposes)
     #[allow(dead_code)]
     buffer_size: usize,
 }
@@ -41,13 +71,28 @@ pub struct GpuLogger {
 impl GpuLogger {
     /// Creates a new GPU logger with the specified buffer size.
     ///
+    /// Attempts to initialize CUDA device 0. If initialization fails,
+    /// the logger will be created but GPU functionality will be unavailable.
+    ///
     /// # Arguments
     ///
-    /// * `buffer_size` - Size of the GPU buffer in bytes
+    /// * `buffer_size` - Size of the GPU buffer in bytes (informational)
     ///
     /// # Returns
     ///
-    /// A new GpuLogger instance, or an error if initialization fails
+    /// A new GpuLogger instance. Always succeeds, even if GPU is unavailable.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use logly::GpuLogger;
+    ///
+    /// let gpu = GpuLogger::new(1024 * 1024)?; // 1MB buffer
+    /// if gpu.is_available() {
+    ///     println!("GPU logging available");
+    /// }
+    /// # Ok::<(), logly::LoglyError>(())
+    /// ```
     pub fn new(buffer_size: usize) -> Result<Self> {
         #[cfg(feature = "gpu")]
         {
@@ -58,11 +103,11 @@ impl GpuLogger {
                     None
                 }
             };
+            let is_available = device.is_some();
 
             Ok(Self {
                 device,
-                buffer: Arc::new(RwLock::new(None)),
-                enabled: Arc::new(RwLock::new(device.is_some())),
+                enabled: Arc::new(RwLock::new(is_available)),
                 buffer_size,
             })
         }
@@ -78,9 +123,25 @@ impl GpuLogger {
 
     /// Checks if GPU acceleration is available.
     ///
+    /// Returns true only if:
+    /// - Compiled with `gpu` feature
+    /// - CUDA device initialization succeeded
+    ///
     /// # Returns
     ///
     /// `true` if CUDA device is initialized and available, `false` otherwise
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use logly::GpuLogger;
+    ///
+    /// let gpu = GpuLogger::new(1024)?;
+    /// if gpu.is_available() {
+    ///     gpu.enable()?;
+    /// }
+    /// # Ok::<(), logly::LoglyError>(())
+    /// ```
     pub fn is_available(&self) -> bool {
         #[cfg(feature = "gpu")]
         {
@@ -95,9 +156,16 @@ impl GpuLogger {
 
     /// Checks if GPU logging is currently enabled.
     ///
+    /// Note: This only checks the enabled flag, not GPU availability.
+    /// Use `is_available()` to check if GPU is actually usable.
+    ///
     /// # Returns
     ///
     /// `true` if GPU logging is enabled, `false` otherwise
+    ///
+    /// # Thread Safety
+    ///
+    /// This method is thread-safe and uses a read lock.
     pub fn is_enabled(&self) -> bool {
         *self.enabled.read()
     }
@@ -106,7 +174,27 @@ impl GpuLogger {
     ///
     /// # Returns
     ///
-    /// An error if GPU is not available or initialization fails
+    /// - `Ok(())` if GPU is available and enabled successfully
+    /// - `Err(LoglyError::GpuError)` if GPU is not available or feature not compiled
+    ///
+    /// # Errors
+    ///
+    /// Returns error if:
+    /// - Not compiled with `gpu` feature
+    /// - CUDA device initialization failed
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use logly::GpuLogger;
+    ///
+    /// let gpu = GpuLogger::new(1024)?;
+    /// match gpu.enable() {
+    ///     Ok(_) => println!("GPU enabled"),
+    ///     Err(e) => eprintln!("GPU not available: {}", e),
+    /// }
+    /// # Ok::<(), logly::LoglyError>(())
+    /// ```
     pub fn enable(&self) -> Result<()> {
         #[cfg(feature = "gpu")]
         {
@@ -128,36 +216,23 @@ impl GpuLogger {
     }
 
     /// Disables GPU logging.
+    ///
+    /// After calling this, `write_to_gpu()` will become a no-op.
+    /// Can be re-enabled with `enable()`.
+    ///
+    /// # Thread Safety
+    ///
+    /// This method is thread-safe and uses a write lock.
     pub fn disable(&self) {
         *self.enabled.write() = false;
     }
 
-    /// Allocates GPU buffer for log data (only available with gpu feature).
-    ///
-    /// # Returns
-    ///
-    /// An error if buffer allocation fails
-    #[cfg(feature = "gpu")]
-    pub fn allocate_buffer(&self) -> Result<()> {
-        if let Some(ref device) = self.device {
-            match device.alloc_zeros::<u8>(self.buffer_size) {
-                Ok(buffer) => {
-                    *self.buffer.write() = Some(buffer);
-                    Ok(())
-                }
-                Err(e) => Err(LoglyError::GpuError(format!(
-                    "Failed to allocate GPU buffer: {:?}",
-                    e
-                ))),
-            }
-        } else {
-            Err(LoglyError::GpuError(
-                "CUDA device not available".to_string(),
-            ))
-        }
-    }
+
 
     /// Writes log data to GPU memory (only available with gpu feature).
+    ///
+    /// Uses `CudaDevice::htod_sync_copy` to perform synchronous host-to-device
+    /// memory transfer. Allocates a new `CudaSlice<u8>` for each write.
     ///
     /// # Arguments
     ///
@@ -165,7 +240,24 @@ impl GpuLogger {
     ///
     /// # Returns
     ///
-    /// An error if GPU write fails
+    /// - `Ok(())` if write succeeds or GPU is disabled (no-op)
+    /// - `Err(LoglyError::GpuError)` if GPU write fails
+    ///
+    /// # Behavior
+    ///
+    /// - If GPU is disabled: Returns Ok without doing anything
+    /// - If GPU is enabled: Performs synchronous copy to device
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use logly::GpuLogger;
+    ///
+    /// let gpu = GpuLogger::new(1024)?;
+    /// gpu.enable()?;
+    /// gpu.write_to_gpu(b"log message")?;
+    /// # Ok::<(), logly::LoglyError>(())
+    /// ```
     #[cfg(feature = "gpu")]
     pub fn write_to_gpu(&self, data: &[u8]) -> Result<()> {
         if !self.is_enabled() {
@@ -173,15 +265,11 @@ impl GpuLogger {
         }
 
         if let Some(ref device) = self.device {
-            let buffer = self.buffer.read();
-            if buffer.is_none() {
-                drop(buffer);
-                self.allocate_buffer()?;
-            }
-
-            // Copy data to GPU
-            match device.htod_copy(data.to_vec()) {
-                Ok(_) => Ok(()),
+            // Allocate GPU buffer and copy data using cudarc driver API
+            // htod_sync_copy: host-to-device synchronous copy
+            // Returns CudaSlice<u8> which is automatically managed
+            match device.htod_sync_copy::<u8>(data) {
+                Ok(_buffer) => Ok(()),
                 Err(e) => Err(LoglyError::GpuError(format!(
                     "Failed to copy to GPU: {:?}",
                     e
@@ -196,9 +284,20 @@ impl GpuLogger {
 
     /// Writes log data to GPU memory (stub when gpu feature is disabled).
     ///
+    /// This is a no-op stub that always returns an error when the `gpu`
+    /// feature is not compiled.
+    ///
+    /// # Arguments
+    ///
+    /// * `_data` - Byte slice (ignored)
+    ///
     /// # Returns
     ///
-    /// An error indicating GPU feature is not enabled
+    /// Always returns `Err(LoglyError::GpuError)` indicating feature not enabled
+    ///
+    /// # Note
+    ///
+    /// To use GPU logging, compile with `--features gpu`
     #[cfg(not(feature = "gpu"))]
     pub fn write_to_gpu(&self, _data: &[u8]) -> Result<()> {
         Err(LoglyError::GpuError("GPU feature not enabled".to_string()))
@@ -206,13 +305,30 @@ impl GpuLogger {
 
     /// Returns information about GPU logging status.
     ///
+    /// Provides human-readable information about GPU availability,
+    /// device details, buffer size, and current status.
+    ///
     /// # Returns
     ///
-    /// A string describing GPU device, buffer size, and status
+    /// A formatted string containing:
+    /// - GPU availability status
+    /// - Device information (if available)
+    /// - Buffer size
+    /// - Active/Inactive status
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use logly::GpuLogger;
+    ///
+    /// let gpu = GpuLogger::new(1024 * 1024)?;
+    /// println!("{}", gpu.get_info());
+    /// # Ok::<(), logly::LoglyError>(())
+    /// ```
     pub fn get_info(&self) -> String {
         #[cfg(feature = "gpu")]
         {
-            if let Some(ref _device) = self.device {
+            if self.device.is_some() {
                 format!(
                     "GPU Logging: Enabled\nDevice: CUDA Device 0\nBuffer Size: {} bytes\nStatus: {}",
                     self.buffer_size,
@@ -237,7 +353,6 @@ impl Default for GpuLogger {
             {
                 Self {
                     device: None,
-                    buffer: Arc::new(RwLock::new(None)),
                     enabled: Arc::new(RwLock::new(false)),
                     buffer_size: 1024 * 1024,
                 }
@@ -250,5 +365,77 @@ impl Default for GpuLogger {
                 }
             }
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_gpu_logger_creation() {
+        let gpu = GpuLogger::new(1024 * 1024);
+        assert!(gpu.is_ok());
+    }
+
+    #[test]
+    fn test_gpu_logger_default() {
+        let gpu = GpuLogger::default();
+        assert_eq!(gpu.buffer_size, 1024 * 1024);
+    }
+
+    #[test]
+    fn test_gpu_availability() {
+        let gpu = GpuLogger::new(1024).unwrap();
+        // GPU may or may not be available depending on system
+        let _ = gpu.is_available();
+    }
+
+    #[test]
+    fn test_gpu_enable_disable() {
+        let gpu = GpuLogger::new(1024).unwrap();
+        gpu.disable();
+        assert!(!gpu.is_enabled());
+    }
+
+    #[test]
+    fn test_gpu_info() {
+        let gpu = GpuLogger::new(1024).unwrap();
+        let info = gpu.get_info();
+        assert!(!info.is_empty());
+        assert!(info.contains("GPU Logging"));
+    }
+
+    #[test]
+    fn test_gpu_write_when_disabled() {
+        let gpu = GpuLogger::new(1024).unwrap();
+        gpu.disable();
+        let data = b"test log data";
+        // Should succeed when disabled (no-op)
+        let result = gpu.write_to_gpu(data);
+        #[cfg(feature = "gpu")]
+        assert!(result.is_ok());
+        #[cfg(not(feature = "gpu"))]
+        assert!(result.is_err());
+    }
+
+    #[cfg(not(feature = "gpu"))]
+    #[test]
+    fn test_gpu_not_available_without_feature() {
+        let gpu = GpuLogger::new(1024).unwrap();
+        assert!(!gpu.is_available());
+        assert!(gpu.enable().is_err());
+    }
+
+    #[cfg(feature = "gpu")]
+    #[test]
+    fn test_gpu_write_to_gpu() {
+        let gpu = GpuLogger::new(1024).unwrap();
+        if gpu.is_available() {
+            let _ = gpu.enable();
+            let data = b"test log data";
+            // May succeed or fail depending on CUDA availability
+            let _ = gpu.write_to_gpu(data);
+        }
     }
 }

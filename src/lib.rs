@@ -36,7 +36,7 @@
 //!
 //! # Repository
 //!
-//! https://github.com/muhammad-fiaz/logly-rs
+//! <https://github.com/muhammad-fiaz/logly-rs>
 //!
 //! # Author
 //!
