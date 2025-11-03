@@ -1,4 +1,15 @@
-# File Rotation & Retention Guide
+# File Rotation & Retention
+
+Automatic log file rotation with retention policies to manage disk space.
+
+## Overview
+
+Logly-rs provides comprehensive file rotation and retention:
+- **Time-based rotation**: hourly, daily, weekly, monthly, yearly
+- **Size-based rotation**: Rotate when file reaches specified size
+- **Combined rotation**: Rotate on either time OR size threshold
+- **Retention policies**: Automatically delete old log files
+- **Timestamped files**: Rotated files include timestamps
 
 ## Rotation Intervals
 
@@ -48,11 +59,54 @@ SinkConfig {
 
 ## Retention Policies
 
-Automatically delete old log files:
+**Retention automatically deletes old rotated log files** to prevent disk space issues.
+
+### How Retention Works
+
+1. **Count-based**: Keeps only the N most recent files
+2. **Automatic cleanup**: Runs during rotation
+3. **Sorted by time**: Oldest files deleted first
+4. **Unlimited option**: Set to `None` for no limit
+
+### Basic Retention
 
 ```rust
 SinkConfig {
-    retention: Some(10),  // Keep only 10 most recent files
+    path: Some(PathBuf::from("logs/app.log")),
+    rotation: Some("daily".to_string()),
+    retention: Some(7),  // Keep only 7 most recent files
+    ..Default::default()
+}
+```
+
+### Retention Examples
+
+```rust
+// Keep 24 hours of hourly logs
+SinkConfig {
+    rotation: Some("hourly".to_string()),
+    retention: Some(24),
+    ..Default::default()
+}
+
+// Keep 30 days of daily logs
+SinkConfig {
+    rotation: Some("daily".to_string()),
+    retention: Some(30),
+    ..Default::default()
+}
+
+// Keep 12 months of monthly logs
+SinkConfig {
+    rotation: Some("monthly".to_string()),
+    retention: Some(12),
+    ..Default::default()
+}
+
+// Unlimited retention (never delete)
+SinkConfig {
+    rotation: Some("daily".to_string()),
+    retention: None,  // Keep all files forever
     ..Default::default()
 }
 ```

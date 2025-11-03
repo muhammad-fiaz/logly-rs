@@ -11,4 +11,5 @@ build-dir = "book"
 [output.html]
 default-theme = "rust"
 git-repository-url = "https://github.com/muhammad-fiaz/logly-rs"
-site-url = "https://muhammad-fiaz.github.io/logly-rs/"
+edit-url-template = "https://github.com/muhammad-fiaz/logly-rs/edit/main/docs/{path}"
+no-section-label = false
