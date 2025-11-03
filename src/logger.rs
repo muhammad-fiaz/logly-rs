@@ -382,7 +382,7 @@ impl Logger {
 
     pub fn add_exception_callback<F>(&self, callback: F)
     where
-        F: Fn(&str, &str) -> () + Send + Sync + 'static,
+        F: Fn(&str, &str) + Send + Sync + 'static,
     {
         self.callbacks.add_exception_callback(Arc::new(callback));
     }
@@ -424,7 +424,7 @@ impl Logger {
 
     // Custom level management
     pub fn add_custom_level(&self, name: String, priority: u8, color: String) -> Result<()> {
-        if priority < 5 || priority > 50 {
+        if !(5..=50).contains(&priority) {
             eprintln!(
                 "[LOGLY WARNING] Custom level priority {} is outside standard range (5-50)",
                 priority

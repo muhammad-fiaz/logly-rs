@@ -19,7 +19,7 @@ pub type ColorCallback = Arc<dyn Fn(Level, &str) -> String + Send + Sync>;
 
 /// Type alias for exception callbacks that handle errors and exceptions.
 /// Takes error message and backtrace string.
-pub type ExceptionCallback = Arc<dyn Fn(&str, &str) -> () + Send + Sync>;
+pub type ExceptionCallback = Arc<dyn Fn(&str, &str) + Send + Sync>;
 
 /// Manages all callback types for the logging system.
 ///
@@ -100,12 +100,7 @@ impl CallbackManager {
     /// Some(formatted_string) if callback exists, None otherwise
     pub fn execute_color_callbacks(&self, level: Level, message: &str) -> Option<String> {
         let callbacks = self.color_callbacks.read();
-
-        if let Some(callback) = callbacks.first() {
-            Some(callback(level, message))
-        } else {
-            None
-        }
+        callbacks.first().map(|callback| callback(level, message))
     }
 
     /// Executes all registered exception callbacks.

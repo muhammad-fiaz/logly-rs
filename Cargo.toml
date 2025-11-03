@@ -33,7 +33,7 @@ parking_lot = "0.12"
 thiserror = "1.0"
 anyhow = "1.0"
 # CUDA support (optional)
-cudarc = { version = "0.11", optional = true }
+cudarc = { version = "0.11", optional = true, features = ["cuda-12050"] }
 # Version checking
 ureq = { version = "2.9", optional = true, default-features = false, features = ["tls"] }
 # Backtrace for error handling

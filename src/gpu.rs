@@ -27,7 +27,7 @@ use std::sync::Arc;
 pub struct GpuLogger {
     /// CUDA device handle (only available with gpu feature)
     #[cfg(feature = "gpu")]
-    device: Option<Arc<CudaDevice>>,
+    device: Option<CudaDevice>,
     /// GPU memory buffer for log data (only available with gpu feature)
     #[cfg(feature = "gpu")]
     buffer: Arc<RwLock<Option<CudaSlice<u8>>>>,
@@ -52,7 +52,7 @@ impl GpuLogger {
         #[cfg(feature = "gpu")]
         {
             let device = match CudaDevice::new(0) {
-                Ok(dev) => Some(Arc::new(dev)),
+                Ok(dev) => Some(dev),
                 Err(e) => {
                     eprintln!("Warning: Failed to initialize CUDA device: {:?}", e);
                     None
@@ -212,7 +212,7 @@ impl GpuLogger {
     pub fn get_info(&self) -> String {
         #[cfg(feature = "gpu")]
         {
-            if let Some(ref device) = self.device {
+            if let Some(ref _device) = self.device {
                 format!(
                     "GPU Logging: Enabled\nDevice: CUDA Device 0\nBuffer Size: {} bytes\nStatus: {}",
                     self.buffer_size,
